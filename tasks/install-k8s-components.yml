@@ -2,10 +2,10 @@
 
 - name: Update apt
   ansible.builtin.apt:
-#     upgrade: yes
     update_cache: yes
     cache_valid_time: 86400  # One day
 
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 - name: Install prerequisites
   ansible.builtin.apt:
     name:
