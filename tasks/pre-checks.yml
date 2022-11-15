@@ -1,0 +1,22 @@
+# tasks/pre-checks.yml
+---
+
+- name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+  ansible.builtin.shell: |
+    swapoff -a
+
+- name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: Check CPUs count
+  ansible.builtin.assert:
+    that: ansible_processor_vcpus >= 2
+    fail_msg: "Requires at least 2 cpu. Current amount is {{ ansible_processor_vcpus }}"
+
+- name: Check RAM
+  ansible.builtin.assert:
+    that: ansible_memtotal_mb >= 2048
+    fail_msg: "RAM less than 2 GB. Current memory is {{ ansible_memtotal_mb }} MB"

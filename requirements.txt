@@ -1,0 +1,5 @@
+'molecule[docker]'
+molecule
+molecule-vagrant
+molecule-docker
+"molecule[lint]"
