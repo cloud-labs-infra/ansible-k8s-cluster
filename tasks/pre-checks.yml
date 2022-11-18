@@ -1,15 +1,26 @@
 # tasks/pre-checks.yml
 ---
 
-- name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
-  ansible.builtin.shell: |
-    swapoff -a
+- name: Check Swap is disabled
+  block:
+    - name: Gather facts
+      ansible.builtin.setup:
 
-- name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
-  ansible.builtin.replace:
-    path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
-    replace: '# \1'
+    - name: Check
+      ansible.builtin.assert:
+        that: ansible_swaptotal_mb == 0
+        fail_msg: "Swap is not disabled. Current swap memory is {{ ansible_swaptotal_mb }}"
+
+- name: Check Containerd is installed
+  block:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Check
+      ansible.builtin.assert:
+        that: "'containerd.io' in ansible_facts.packages"
+        fail_msg: containerd is not installed
 
 - name: Check CPUs count
   ansible.builtin.assert:

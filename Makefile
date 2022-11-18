@@ -7,17 +7,15 @@ sudo apt update && sudo apt install vagrant
 # source venv/bin/activate.fish
 source venv/bin/activate
 
-pip install 'molecule[docker]' molecule molecule-vagrant molecule-docker
+pip install -r requirements.txt
 
-cd ansible_k8s_cluster/
+cd molecule/default
 
-molecule init role mishavint.ansible_k8s_cluster --driver-name vagrant
-
-vagrant box add ubuntu/trusty64
+vagrant box add generic/ubuntu2204
 
 # Followed that advise
 https://github.com/hashicorp/vagrant/issues/12601#issuecomment-979612233
 
-ansible-galaxy install geerlingguy.docker -p molecule/default/roles
+ansible-galaxy install -r ../../requirements.yml -p roles
 
 molecule create

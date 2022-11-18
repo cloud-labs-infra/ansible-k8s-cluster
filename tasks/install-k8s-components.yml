@@ -1,10 +1,5 @@
 ---
 
-- name: Update apt
-  ansible.builtin.apt:
-    update_cache: yes
-    cache_valid_time: 86400  # One day
-
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 - name: Install prerequisites
   ansible.builtin.apt:
@@ -13,6 +8,7 @@
       - ca-certificates
       - curl
     state: present
+    update_cache: yes
 
 - name: Download Google Cloud public signing key
   ansible.builtin.apt_key:
@@ -25,14 +21,15 @@
     state: present
     filename: kubernetes
 
-- name: Update apt package index, install kubelet, kubeadm and kubectl
+- name: Update apt package index, install k8s components
   ansible.builtin.apt:
     allow_unauthenticated: yes
     update_cache: yes
     name:
-      - kubelet
-      - kubeadm
-      - kubectl
+      - kubelet={{ kubelet_version }}
+      - kubeadm={{ kubeadm_version }}
+      - kubectl={{ kubectl_version }}
+      - etcd-client={{ etcd_client_version }}
 
 - name: Pin versions
   ansible.builtin.dpkg_selections:
@@ -43,12 +40,8 @@
     - kubeadm
     - kubectl
 
-- name: Install etcd-client
-  ansible.builtin.apt:
-    name: etcd-client
-
 - name: Add overlay and br_netfilter to modules-load.d/k8s.conf
-  ansible.builtin.template:
+  ansible.builtin.copy:
    src: modules-load.d_k8s.conf
    dest: "/etc/modules-load.d/k8s.conf"
 
@@ -71,19 +64,3 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
     - net.ipv4.ip_forward
-
-- name: Install containerd
-  ansible.builtin.apt:
-    name:
-      - containerd
-      - containerd.io
-
-- name: Delete config.toml file
-  ansible.builtin.file:
-    path: /etc/containerd/config.toml
-    state: absent
-
-- name: Restart containerd service
-  ansible.builtin.service:
-    name: containerd
-    state: restarted
