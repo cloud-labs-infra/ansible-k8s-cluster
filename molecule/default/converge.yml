@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  become: yes
+  roles:
+    - { role: ansible-role-docker }
+    - { role: disable_swap }
+    - { role: ansible-role-containerd }
+  tasks:
+    - name: "Include mishavint.ansible_k8s_cluster"
+      include_role:
+        name: "mishavint.ansible_k8s_cluster"
