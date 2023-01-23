@@ -1,5 +1,4 @@
 ---
-
 - include_tasks: pre-checks.yml
 
 - include_tasks: install-k8s-components.yml
