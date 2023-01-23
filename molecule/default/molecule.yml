@@ -31,7 +31,7 @@ provisioner:
 #       host_key_checking: False
   inventory:
     host_vars:
-      # Inventory used for Molecule when executing the Ansible role tested.     
+      # Inventory used for Molecule when executing the Ansible role tested.
       instance:
         variable1: value
         variable2: False

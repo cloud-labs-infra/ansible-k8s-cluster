@@ -1,7 +1,18 @@
 ---
 # defaults file for ansible_k8s_cluster
 
-kubelet_version: '1.25.4-00'
-kubeadm_version: '1.25.4-00'
-kubectl_version: '1.25.4-00'
-etcd_client_version: '3.3.25+dfsg-7'
+kubelet_version: '1.26.0-00'
+kubeadm_version: '1.26.0-00'
+kubectl_version: '1.26.0-00'
+
+# defaults for kubeadm-config
+apiVersion: 'kubeadm.k8s.io/v1beta3'
+kubernetes_services_network_cidr: '10.96.0.0/12'
+kubernetes_pod_network_cidr: '10.244.0.0/16'
+kubernetes_networking_dns_domain: 'cluster.local'
+kubernetes_loadbalancer_fqdn: ""
+kubernetes_api_server_extra_args:
+  authorization-mode: "Node,RBAC"
+#   enable-admission-plugins: "PodSecurityPolicy"
+#   kubernetes_etcd_encryption_config_path: "{{ kubernetes_etcd_encryption_config_path }}"
+kubernetes_cluster_name: 'my-shiny-cluster'

@@ -29,7 +29,11 @@
       - kubelet={{ kubelet_version }}
       - kubeadm={{ kubeadm_version }}
       - kubectl={{ kubectl_version }}
-      - etcd-client={{ etcd_client_version }}
+
+- name: Install etcd-client
+  ansible.builtin.apt:
+    name: etcd-client
+    state: latest
 
 - name: Pin versions
   ansible.builtin.dpkg_selections:
@@ -40,6 +44,7 @@
     - kubeadm
     - kubectl
 
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 - name: Add overlay and br_netfilter to modules-load.d/k8s.conf
   ansible.builtin.copy:
    src: modules-load.d_k8s.conf

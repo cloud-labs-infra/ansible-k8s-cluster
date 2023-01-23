@@ -1,0 +1,11 @@
+#tasks/initialize-k8s-cluster
+---
+
+- name: Write kubeadm config
+  ansible.builtin.template:
+    src: kubeadm-config.yml.j2
+    dest: /tmp/kubeadm-config.yml
+
+- name: Start kubeadm initialize
+  ansible.builtin.shell: |
+    kubeadm init --config=/tmp/kubeadm-config.yml 2>&1 | tee /tmp/kubeadm.log
