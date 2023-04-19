@@ -1,14 +1,26 @@
-- src: https://github.com/freehck/ansible-role-disable-swap
-  scm: git
+---
+
+- name: freehck.disable_swap
   version: v1.0.1
-  name: disable_swap
 
-- src: https://github.com/geerlingguy/ansible-role-docker.git
-  scm: git
-  version: 6.0.3
-  name: ansible-role-docker
+#- name: geerlingguy.docker
+#  version: 6.0.3
 
-- src: https://github.com/geerlingguy/ansible-role-containerd
+- name: geerlingguy.containerd
+  version: 1.3.1
+
+- name: andrewrothstein.etcd
+  version: v2.3.1
+
+- name: andrewrothstein.cfssl
+  version: v3.1.1
+
+- name: ansible-etcd-cluster
   scm: git
-  version: 1.3.0
-  name: ansible-role-containerd
+  version: 0.1.0
+  src: https://github.com/cloud-labs-infra/ansible-etcd-cluster.git
+
+- name: ansible-etcd-cluster-certificates
+  scm: git
+  version: 0.2.0
+  src: https://github.com/cloud-labs-infra/ansible-etcd-cluster-certificates.git

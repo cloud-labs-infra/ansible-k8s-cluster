@@ -1,46 +1,37 @@
+---
 dependency:
   name: galaxy
 driver:
-  name: vagrant
-  provider:
-    name: virtualbox
+  name: docker
 platforms:
-  - name: instance
-    box: generic/ubuntu2204
-    memory: 2500
-    cpus: 2
-    interfaces:
-      # `network_name` is the required identifier, other keys map to arguments.
-      - network_name: private_network
-        ip: 192.168.56.20
-        guest: 80
-        host: 8080
-    # List of raw Vagrant `config` options.
-    provider_raw_config_args:
-      - "customize [ 'modifyvm', :id, '--natdnshostresolver1', 'on' ]"
-    # Dictionary of `config` options.
-#     config_options:
-#       ssh.keep_alive: yes
-#       ssh.remote_user: "'vagrant'"
-#       ansible_ssh_pass: "'vagrant'"
-#       ansible_sudo_pass: "'vagrant'"
+  - name: k8s-control-plane-instance-01
+    hostname: etcd-instance-01
+    image: mpaivabarbosa/molecule-systemd-ubuntu:20.04
+    groups:
+      - k8s
+    command: /sbin/init
+    security_opts:
+      - seccomp=unconfined
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    privileged: true
+    pre_build_image: true
+    override_command: false
+    sysctls:
+      net.bridge.bridge-nf-call-iptables: 1
+      net.bridge.bridge-nf-call-ip6tables: 1
+      net.ipv4.ip_forward: 1
+    capabilities:
+      - ALL
+    # default create.yml and container creation:
+    #   https://github.com/ansible-community/molecule-docker/blob/main/src/molecule_docker/playbooks/create.yml#L131
+    #
+    # note: If --memory and --memory-swap are set to the same value,
+    # this prevents containers from using any swap
+    # read more at: https://docs.docker.com/config/containers/resource_constraints/#prevent-a-container-from-using-swap
+#    memory: 2147483648  # 2Gb
+#    memory_swap: 2147483648
 provisioner:
   name: ansible
-#   config_options:
-#     defaults:
-#       host_key_checking: False
-  inventory:
-    host_vars:
-      # Inventory used for Molecule when executing the Ansible role tested.     
-      instance:
-        variable1: value
-        variable2: False
-lint: |
-  set -e
-  yamllint .
-  ansible-lint
 verifier:
-  name: testinfra
-  options:
-    sudo: true
-    v: 1
+  name: ansible

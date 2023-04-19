@@ -1,15 +1,15 @@
-# tasks/pre-checks.yml
+# tasks/preflight.yml
 ---
 
-- name: Check Swap is disabled
-  block:
-    - name: Gather facts
-      ansible.builtin.setup:
-
-    - name: Check
-      ansible.builtin.assert:
-        that: ansible_swaptotal_mb == 0
-        fail_msg: "Swap is not disabled. Current swap memory is {{ ansible_swaptotal_mb }}"
+#- name: Check Swap is disabled
+#  block:
+#    - name: Gather facts
+#      ansible.builtin.setup:
+#
+#    - name: Check
+#      ansible.builtin.assert:
+#        that: ansible_swaptotal_mb == 0
+#        fail_msg: "Swap is not disabled. Current swap memory is {{ ansible_swaptotal_mb }}"
 
 - name: Check Containerd is installed
   block:

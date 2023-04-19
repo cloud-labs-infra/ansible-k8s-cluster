@@ -1,5 +1,5 @@
 ---
 
-- include_tasks: pre-checks.yml
+- include_tasks: preflight.yml
 
-- include_tasks: install-k8s-components.yml
+- include_tasks: configure.yml
