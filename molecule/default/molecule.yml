@@ -35,5 +35,9 @@ platforms:
 #    memory_swap: 2147483648
 provisioner:
   name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
 verifier:
   name: ansible

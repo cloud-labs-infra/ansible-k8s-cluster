@@ -29,7 +29,6 @@
       - kubelet={{ kubelet_version }}
       - kubeadm={{ kubeadm_version }}
       - kubectl={{ kubectl_version }}
-      - etcd-client={{ etcd_client_version }}
     allow_unauthenticated: yes
     update_cache: yes
 
@@ -42,6 +41,7 @@
     - kubeadm
     - kubectl
 
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 - name: Load required kernel modules on boot
   ansible.builtin.copy:
     src: modules-load.d_k8s.conf
@@ -66,3 +66,8 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
     - net.ipv4.ip_forward
+
+- name: Make containerd defautl to crictl
+  ansible.builtin.copy:
+    content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
+    dest: /etc/crictl.yaml

@@ -3,3 +3,6 @@
 - include_tasks: preflight.yml
 
 - include_tasks: configure.yml
+
+- include_tasks: control-plane-init.yml
+  when: "'control-plane' in group_names"

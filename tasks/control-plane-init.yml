@@ -1,0 +1,39 @@
+#tasks/initialize-k8s-cluster
+---
+- name: Write kubeadm config
+  ansible.builtin.template:
+    src: kubeadm-config.yml.j2
+    dest: /tmp/kubeadm-config.yml
+
+- name: Start kubeadm initialize
+  ansible.builtin.shell: |
+    kubeadm init --config=/tmp/kubeadm-config.yml  2>&1 | tee /tmp/kubeadm.log
+
+- name: Ensure .kube directory exists.
+  ansible.builtin.file:
+    path: ~/.kube
+    state: directory
+    mode: 0755
+
+- name: Symlink the kubectl admin.conf to ~/.kube/conf.
+  ansible.builtin.file:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/config
+    state: link
+    mode: 0644
+
+# https://github.com/flannel-io/flannel
+- name: Configure Flannel networking
+  ansible.builtin.shell: "kubectl apply -f {{ k8s_cluster_flannel_apply }} 2>&1 | tee /tmp/flannel.log"
+
+- name: Get the kubeadm join command from the Kubernetes master.
+  command: kubeadm token create --ttl 1h --print-join-command
+  register: kubernetes_join_command_result
+  delegate_to: "{{ groups['control-plane'][0] }}"
+
+#- name: Set the kubeadm join command for masters and nodes.
+#  ansible.builtin.set_fact:
+#    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
+#  delegate_to: "{{ item }}"
+#  delegate_facts: true
+#  with_items: "{{ groups['control-plane'] + groups['workers'] }}"
