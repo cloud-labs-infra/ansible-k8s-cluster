@@ -3,6 +3,9 @@
   hosts: all
   become: yes
   gather_facts: false
+  vars:
+    # geerlingguy.containerd related variables
+    containerd_config_cgroup_driver_systemd: true
   pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
@@ -13,12 +16,14 @@
       ansible.builtin.setup:
   roles:
 #    - { role: freehck.disable_swap }
-
 #    - { role: geerlingguy.docker }
-#    - { role: geerlingguy.containerd }
-#    - { role: andrewrothstein.etcd }
-#    - { role: ansible-etcd-cluster }
+
+    - { role: geerlingguy.containerd }
+    - { role: andrewrothstein.etcd }
+    - { role: ansible-etcd-cluster }
   tasks:
+    - meta: flush_handlers
+
     - name: "Include cloud_labs.k8s_cluster"
       include_role:
         name: "cloud_labs.k8s_cluster"

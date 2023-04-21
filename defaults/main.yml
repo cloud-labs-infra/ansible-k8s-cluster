@@ -16,6 +16,7 @@ k8s_cluster_api_server_extra_args:
  authorization-mode: "Node,RBAC"
 k8s_cluster_name: 'my-shiny-cluster'
 k8s_cluster_get_fqdn_from: ansible_host
+k8s_cluster_ignore_preflight_errors: "all"
 
 k8s_cluster_pod_network:
   # Flannel CNI.
@@ -24,7 +25,7 @@ k8s_cluster_pod_network:
 
 k8s_cluster_etcd:
   type: external
-  etcd_endpoints: 'http://172.18.0.2:2379'
+  etcd_endpoints: "http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"
   # type: local
 
 # https://github.com/flannel-io/flannel

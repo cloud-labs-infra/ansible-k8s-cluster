@@ -1,4 +1,50 @@
+#---
+#dependency:
+#  name: galaxy
+#driver:
+#  name: docker
+#platforms:
+#  - name: k8s-control-plane-instance-01
+#    hostname: k8s-control-plane-instance-01
+#    image: mpaivabarbosa/molecule-systemd-ubuntu:20.04
+##    image: k8s_experimental_01:002
+#    groups:
+#      - etcd
+#      - k8s
+#    command: /sbin/init
+#    security_opts:
+#      - seccomp=unconfined
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+#    privileged: true
+#    pre_build_image: true
+#    override_command: false
+#    sysctls:
+#      net.bridge.bridge-nf-call-iptables: 1
+#      net.bridge.bridge-nf-call-ip6tables: 1
+#      net.ipv4.ip_forward: 1
+#    capabilities:
+#      - ALL
+#    # default create.yml and container creation:
+#    #   https://github.com/ansible-community/molecule-docker/blob/main/src/molecule_docker/playbooks/create.yml#L131
+#    #
+#    # note: If --memory and --memory-swap are set to the same value,
+#    # this prevents containers from using any swap
+#    # read more at: https://docs.docker.com/config/containers/resource_constraints/#prevent-a-container-from-using-swap
+##    memory: 2147483648  # 2Gb
+##    memory_swap: 2147483648
+#provisioner:
+#  name: ansible
+#lint: |
+#  set -e
+#  yamllint .
+#  ansible-lint
+#verifier:
+#  name: ansible
+
+
 ---
+role_name_check: 1
 dependency:
   name: galaxy
 driver:
@@ -6,38 +52,16 @@ driver:
 platforms:
   - name: k8s-control-plane-instance-01
     hostname: k8s-control-plane-instance-01
-    image: mpaivabarbosa/molecule-systemd-ubuntu:20.04
-#    image: k8s_experimental_01:002
+    image: geerlingguy/docker-ubuntu2004-ansible:latest
     groups:
       - etcd
       - k8s
-    command: /sbin/init
-    security_opts:
-      - seccomp=unconfined
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
+    cgroupns_mode: host
     privileged: true
     pre_build_image: true
-    override_command: false
-    sysctls:
-      net.bridge.bridge-nf-call-iptables: 1
-      net.bridge.bridge-nf-call-ip6tables: 1
-      net.ipv4.ip_forward: 1
-    capabilities:
-      - ALL
-    # default create.yml and container creation:
-    #   https://github.com/ansible-community/molecule-docker/blob/main/src/molecule_docker/playbooks/create.yml#L131
-    #
-    # note: If --memory and --memory-swap are set to the same value,
-    # this prevents containers from using any swap
-    # read more at: https://docs.docker.com/config/containers/resource_constraints/#prevent-a-container-from-using-swap
-#    memory: 2147483648  # 2Gb
-#    memory_swap: 2147483648
 provisioner:
-  name: ansible
-lint: |
-  set -e
-  yamllint .
-  ansible-lint
-verifier:
   name: ansible

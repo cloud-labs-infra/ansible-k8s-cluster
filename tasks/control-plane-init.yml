@@ -1,5 +1,6 @@
-#tasks/initialize-k8s-cluster
+# tasks/initialize-k8s-cluster
 ---
+
 - name: Write kubeadm config
   ansible.builtin.template:
     src: kubeadm-config.yml.j2
@@ -7,7 +8,10 @@
 
 - name: Start kubeadm initialize
   ansible.builtin.shell: |
-    kubeadm init --config=/tmp/kubeadm-config.yml  2>&1 | tee /tmp/kubeadm.log
+    kubeadm init \
+      --config=/tmp/kubeadm-config.yml \
+      --ignore-preflight-errors="{{ k8s_cluster_ignore_preflight_errors }}" \
+        > /tmp/kubeadm.log 2>&1
 
 - name: Ensure .kube directory exists.
   ansible.builtin.file:
