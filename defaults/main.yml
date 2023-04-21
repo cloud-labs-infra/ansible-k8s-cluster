@@ -4,3 +4,6 @@ kubelet_version: '1.25.4-00'
 kubeadm_version: '1.25.4-00'
 kubectl_version: '1.25.4-00'
 etcd_client_version: '3.2.26+dfsg-6'
+
+k8s_cluster_apt_key_url: 'https://packages.cloud.google.com/apt/doc/apt-key.gpg'
+k8s_cluster_apt_repository: 'deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main'
