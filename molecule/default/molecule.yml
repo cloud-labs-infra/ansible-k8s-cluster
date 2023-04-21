@@ -5,33 +5,20 @@ driver:
   provider:
     name: virtualbox
 platforms:
-  - name: instance
-    box: generic/ubuntu2204
+  - name: instance-1
+    box: ubuntu/focal64
     memory: 2500
     cpus: 2
     interfaces:
-      # `network_name` is the required identifier, other keys map to arguments.
       - network_name: private_network
         ip: 192.168.56.20
         guest: 80
         host: 8080
-    # List of raw Vagrant `config` options.
-    provider_raw_config_args:
-      - "customize [ 'modifyvm', :id, '--natdnshostresolver1', 'on' ]"
-    # Dictionary of `config` options.
-#     config_options:
-#       ssh.keep_alive: yes
-#       ssh.remote_user: "'vagrant'"
-#       ansible_ssh_pass: "'vagrant'"
-#       ansible_sudo_pass: "'vagrant'"
+    groups: [control-plane]
 provisioner:
   name: ansible
-#   config_options:
-#     defaults:
-#       host_key_checking: False
   inventory:
     host_vars:
-      # Inventory used for Molecule when executing the Ansible role tested.     
       instance:
         variable1: value
         variable2: False

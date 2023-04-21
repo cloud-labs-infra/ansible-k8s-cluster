@@ -1,0 +1,19 @@
+---
+
+apiVersion: {{ k8s_cluster_api_version }}
+kind: ClusterConfiguration
+kubernetesVersion: stable
+networking:
+  serviceSubnet: {{ k8s_cluster_services_network_cidr }}
+  podSubnet: {{ k8s_cluster_pod_network.cidr }}
+  dnsDomain: {{ k8s_cluster_networking_dns_domain | default('cluster.local') }}
+etcd:
+  external:
+    endpoints: [{{ k8s_cluster_etcd.etcd_endpoints }}]
+    caFile: ""
+    certFile: ""
+    keyFile: ""
+apiServer:
+  timeoutForControlPlane: 4m0s
+controlPlaneEndpoint: "{{ k8s_cluster_loadbalancer_fqdn }}:6443"
+clusterName: {{ k8s_cluster_name }}

@@ -1,5 +1,7 @@
 ---
-
 - include_tasks: pre-checks.yml
 
 - include_tasks: install-k8s-components.yml
+
+- include_tasks: control-plane-init.yml
+  when: "'control-plane' in group_names"
