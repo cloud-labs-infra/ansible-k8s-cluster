@@ -4,9 +4,10 @@
   remote_user: mishavint
   become: yes
   roles:
-    - { role: ansible-role-docker }
-    - { role: disable_swap }
-    - { role: ansible-role-containerd }
+    - { role: freehck.disable_swap }
+    - { role: geerlingguy.docker }
+    - { role: geerlingguy.containerd }
+    - { role: andrewrothstein.etcd }
   tasks:
     - name: "Include mishavint.ansible_k8s_cluster"
       include_role:

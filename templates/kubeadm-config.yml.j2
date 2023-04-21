@@ -1,27 +1,19 @@
 ---
 
-apiVersion: {{ apiVersion }}
+apiVersion: {{ k8s_cluster_api_version }}
 kind: ClusterConfiguration
 kubernetesVersion: stable
 networking:
-  serviceSubnet: {{ kubernetes_services_network_cidr | default('10.96.0.0/12') }}
-  podSubnet: {{ kubernetes_pod_network_cidr | default('10.244.0.0/16') }}
-  dnsDomain: {{ kubernetes_networking_dns_domain | default('cluster.local') }}
+  serviceSubnet: {{ k8s_cluster_services_network_cidr }}
+  podSubnet: {{ k8s_cluster_pod_network.cidr }}
+  dnsDomain: {{ k8s_cluster_networking_dns_domain | default('cluster.local') }}
 etcd:
   external:
-    endpoints:
-      - "http://192.168.214.114:2379"
+    endpoints: [{{ k8s_cluster_etcd.etcd_endpoints }}]
     caFile: ""
     certFile: ""
     keyFile: ""
 apiServer:
   timeoutForControlPlane: 4m0s
-  certSANs:
-    - "192.168.56.20"
-#    - "{{ kubernetes_loadbalancer_fqdn }}"
-  extraArgs:
-    {% for arg, value in kubernetes_api_server_extra_args.items() -%}
-    {{ arg }}: "{{ value }}"
-    {% endfor %}
-
-clusterName: {{ kubernetes_cluster_name }}
+controlPlaneEndpoint: "{{ k8s_cluster_loadbalancer_fqdn }}:6443"
+clusterName: {{ k8s_cluster_name }}

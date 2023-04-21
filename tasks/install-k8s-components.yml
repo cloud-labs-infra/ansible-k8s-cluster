@@ -30,11 +30,6 @@
       - kubeadm={{ kubeadm_version }}
       - kubectl={{ kubectl_version }}
 
-- name: Install etcd-client
-  ansible.builtin.apt:
-    name: etcd-client
-    state: latest
-
 - name: Pin versions
   ansible.builtin.dpkg_selections:
     selection: hold
@@ -69,3 +64,8 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
     - net.ipv4.ip_forward
+
+- name: Make containerd defautl to crictl
+  ansible.builtin.copy:
+    content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
+    dest: /etc/crictl.yaml
