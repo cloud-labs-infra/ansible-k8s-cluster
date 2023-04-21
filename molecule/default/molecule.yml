@@ -5,9 +5,11 @@ driver:
   name: docker
 platforms:
   - name: k8s-control-plane-instance-01
-    hostname: etcd-instance-01
+    hostname: k8s-control-plane-instance-01
     image: mpaivabarbosa/molecule-systemd-ubuntu:20.04
+#    image: k8s_experimental_01:002
     groups:
+      - etcd
       - k8s
     command: /sbin/init
     security_opts:
