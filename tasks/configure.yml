@@ -8,6 +8,7 @@
       - ca-certificates
       - curl
       - kmod  # installs modprobe and lsmod
+      - net-tools
     state: present
     update_cache: yes
 

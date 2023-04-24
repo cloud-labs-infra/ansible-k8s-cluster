@@ -1,27 +1,6 @@
 # tasks/preflight.yml
 ---
 
-#- name: Check Swap is disabled
-#  block:
-#    - name: Gather facts
-#      ansible.builtin.setup:
-#
-#    - name: Check
-#      ansible.builtin.assert:
-#        that: ansible_swaptotal_mb == 0
-#        fail_msg: "Swap is not disabled. Current swap memory is {{ ansible_swaptotal_mb }}"
-
-- name: Check Containerd is installed
-  block:
-    - name: Gather package facts
-      ansible.builtin.package_facts:
-        manager: apt
-
-    - name: Check
-      ansible.builtin.assert:
-        that: "'containerd.io' in ansible_facts.packages"
-        fail_msg: containerd is not installed
-
 - name: Check CPUs count
   ansible.builtin.assert:
     that: ansible_processor_vcpus >= 2

@@ -8,6 +8,7 @@ k8s_cluster_apt_key_url: 'https://packages.cloud.google.com/apt/doc/apt-key.gpg'
 k8s_cluster_apt_repository: 'deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main'
 
 # defaults for kubeadm-config
+k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 k8s_cluster_api_version: 'kubeadm.k8s.io/v1beta3'
 k8s_cluster_services_network_cidr: 10.96.0.0/12
 k8s_cluster_networking_dns_domain: 'cluster.local'
