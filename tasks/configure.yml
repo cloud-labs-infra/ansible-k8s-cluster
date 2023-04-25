@@ -27,9 +27,9 @@
 - name: install Kubernetes components
   ansible.builtin.apt:
     name:
-      - kubelet={{ kubelet_version }}
-      - kubeadm={{ kubeadm_version }}
-      - kubectl={{ kubectl_version }}
+      - kubelet={{ k8s_cluster_kubelet_version }}
+      - kubeadm={{ k8s_cluster_kubeadm_version }}
+      - kubectl={{ k8s_cluster_kubectl_version }}
     allow_unauthenticated: yes
     update_cache: yes
 
