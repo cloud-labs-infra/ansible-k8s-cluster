@@ -8,26 +8,26 @@ k8s_cluster_apt_key_url: 'https://packages.cloud.google.com/apt/doc/apt-key.gpg'
 k8s_cluster_apt_repository: 'deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main'
 
 # defaults for kubeadm-config
+k8s_cluster_kubernetes_version: 1.26.0
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
-k8s_cluster_api_version: 'kubeadm.k8s.io/v1beta3'
-k8s_cluster_services_network_cidr: 10.96.0.0/12
-k8s_cluster_networking_dns_domain: 'cluster.local'
-k8s_cluster_loadbalancer_fqdn: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-k8s_cluster_api_server_extra_args:
- authorization-mode: "Node,RBAC"
-k8s_cluster_name: 'my-shiny-cluster'
-k8s_cluster_get_fqdn_from: ansible_host
 k8s_cluster_ignore_preflight_errors: "all"
+
+k8s_cluster_cluster_configuration:
+ etcd:
+  external:
+   endpoints: ["http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"]
+ networking:
+  serviceSubnet: 10.96.0.0/12
+  podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
+  dnsDomain: cluster.local
+ kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
+ controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
+ clusterName: 'my-shiny-cluster'
 
 k8s_cluster_pod_network:
   # Flannel CNI.
   cni: 'flannel'
   cidr: '10.244.0.0/16'
-
-k8s_cluster_etcd:
-  type: external
-  etcd_endpoints: "http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"
-  # type: local
 
 # https://github.com/flannel-io/flannel
 k8s_cluster_flannel_apply: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
