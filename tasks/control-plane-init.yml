@@ -11,6 +11,11 @@
     src: "kubeadm-config.yml.j2"
     dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
 
+- name: Pre pull required images
+  shell: |
+    kubeadm config images pull
+  changed_when: False
+
 - name: Run kubeadm init
   ansible.builtin.shell: |
     kubeadm init \
