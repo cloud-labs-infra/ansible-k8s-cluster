@@ -16,7 +16,6 @@ platforms:
       - /var/lib/containerd
     privileged: true
     pre_build_image: true
-    runtime: runc
     sysctls:
       net.bridge.bridge-nf-call-iptables: 1
       net.bridge.bridge-nf-call-ip6tables: 1
