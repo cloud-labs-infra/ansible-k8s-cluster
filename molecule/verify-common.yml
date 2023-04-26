@@ -1,0 +1,43 @@
+---
+
+- name: Check Kubernetes API health
+  block:
+    - name: Query health endpoint to show output
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/livez?verbose 2>/dev/null
+      register: curl_show
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: curl_show
+
+    # https://kubernetes.io/docs/reference/using-api/health-checks/
+    - name: Query health endpoint to count checks
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/livez?verbose 2>/dev/null | awk '/^\[/{print $NF}' | sort | uniq -c | wc -l
+      register: curl
+      changed_when: False
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: curl
+
+    - name: API health is Ok
+      ansible.builtin.assert:
+        that: curl.stdout | int == 1
+
+- name: Check kubelet
+  block:
+    - name: Collect facts about systemd services
+      ansible.builtin.service_facts:
+      register: services_state
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: services_state.ansible_facts.services['kubelet.service']
+
+    - name: Check if etcd service is in running state
+      ansible.builtin.assert:
+        that: services_state.ansible_facts.services['kubelet.service'].state == "running"
+      ignore_errors: yes
+      register: etcd_state
