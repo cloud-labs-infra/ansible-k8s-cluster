@@ -21,9 +21,6 @@
   become: yes
   become_method: su
   gather_facts: false
-  vars:
-    # geerlingguy.containerd related variables
-    containerd_config_cgroup_driver_systemd: true
   pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
@@ -34,12 +31,7 @@
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
-  roles:
-    - { role: andrewrothstein.etcd }
-    - { role: ansible-etcd-cluster }
   tasks:
-    - meta: flush_handlers
-
     - name: "Include cloud_labs.k8s_cluster"
       include_role:
         name: "cloud_labs.k8s_cluster"
