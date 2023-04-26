@@ -10,25 +10,26 @@
     state: present
     update_cache: yes
 
-- name: Download Google Cloud public signing key
+- name: Add Kubernetes apt key
   ansible.builtin.apt_key:
-    url: http://packages.cloud.google.com/apt/doc/apt-key.gpg
+    url: "{{ k8s_cluster_apt_key_url }}"
     keyring: /usr/share/keyrings/kubernetes-archive-keyring.gpg
 
-- name: Add the Kubernetes apt repository
+- name: Add Kubernetes apt repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+    repo: "{{ k8s_cluster_apt_repository }}"
     state: present
-    filename: kubernetes
+    #    filename: kubernetes
+    update_cache: true
 
-- name: Update apt package index, install k8s components
+- name: install Kubernetes components
   ansible.builtin.apt:
+    name:
+      - kubelet={{ k8s_cluster_kubelet_version }}
+      - kubeadm={{ k8s_cluster_kubeadm_version }}
+      - kubectl={{ k8s_cluster_kubectl_version }}
     allow_unauthenticated: yes
     update_cache: yes
-    name:
-      - kubelet={{ kubelet_version }}
-      - kubeadm={{ kubeadm_version }}
-      - kubectl={{ kubectl_version }}
 
 - name: Pin versions
   ansible.builtin.dpkg_selections:
@@ -40,19 +41,19 @@
     - kubectl
 
 # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
-- name: Add overlay and br_netfilter to modules-load.d/k8s.conf
+- name: Load required kernel modules on boot
   ansible.builtin.copy:
-   src: modules-load.d_k8s.conf
-   dest: "/etc/modules-load.d/k8s.conf"
+    src: modules-load.d_k8s.conf
+    dest: "/etc/modules-load.d/k8s.conf"
 
-- name: Modprobe overlay and br_netfilter
+- name: Load kernel modules
   community.general.modprobe:
     name: "{{ item }}"
   loop:
     - overlay
     - br_netfilter
 
-- name: Forwarding IPv4 in sysctl
+- name: Configure sysctl
   ansible.posix.sysctl:
     name: "{{ item }}"
     value: '1'

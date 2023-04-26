@@ -1,14 +1,37 @@
 ---
+
+- hosts: localhost
+  connection: local
+  pre_tasks:
+    - name: Set proper nf_conntrack_max
+      ansible.posix.sysctl:
+        name: net.netfilter.nf_conntrack_max
+        value: '393216'
+        sysctl_set: true
+        state: present
+        reload: true
+
+- hosts: all
+  gather_facts: false
+  tasks:
+    - raw: apt update && apt install -y python3-pip python3 python3-apt
+
 - name: Converge
   hosts: all
-  remote_user: mishavint
   become: yes
-  roles:
-    - { role: freehck.disable_swap }
-    - { role: geerlingguy.docker }
-    - { role: geerlingguy.containerd }
-    - { role: andrewrothstein.etcd }
+  become_method: su
+  gather_facts: false
+  pre_tasks:
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - iproute2  # provides network facts
+          - kmod  # modprobe and lsmod
+          - net-tools
+        update_cache: true
+    - name: Collect facts
+      ansible.builtin.setup:
   tasks:
-    - name: "Include mishavint.ansible_k8s_cluster"
+    - name: "Include cloud_labs.k8s_cluster"
       include_role:
-        name: "mishavint.ansible_k8s_cluster"
+        name: "cloud_labs.k8s_cluster"

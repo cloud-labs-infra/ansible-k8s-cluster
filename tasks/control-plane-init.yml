@@ -1,13 +1,27 @@
-#tasks/initialize-k8s-cluster
+# tasks/initialize-k8s-cluster
 ---
-- name: Write kubeadm config
-  ansible.builtin.template:
-    src: kubeadm-config.yml.j2
-    dest: /tmp/kubeadm-config.yml
 
-- name: Start kubeadm initialize
+- name: Create kubelet root directory
+  ansible.builtin.file:
+    path: "{{ k8s_cluster_kubelet_config_root_dir }}"
+    state: directory
+
+- name: Copy initial kubeadm template
+  ansible.builtin.template:
+    src: "kubeadm-config.yml.j2"
+    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
+
+- name: Pre pull required images
+  shell: |
+    kubeadm config images pull
+  changed_when: False
+
+- name: Run kubeadm init
   ansible.builtin.shell: |
-    kubeadm init --config=/tmp/kubeadm-config.yml  2>&1 | tee /tmp/kubeadm.log
+    kubeadm init \
+      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml \
+      --ignore-preflight-errors="{{ k8s_cluster_ignore_preflight_errors }}" \
+        > /tmp/kubeadm.log 2>&1
 
 - name: Ensure .kube directory exists.
   ansible.builtin.file:
@@ -29,11 +43,11 @@
 - name: Get the kubeadm join command from the Kubernetes master.
   command: kubeadm token create --ttl 1h --print-join-command
   register: kubernetes_join_command_result
-  delegate_to: "{{ groups['control-plane'][0] }}"
+  delegate_to: "{{ groups['control_plane'][0] }}"
 
 #- name: Set the kubeadm join command for masters and nodes.
 #  ansible.builtin.set_fact:
 #    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
 #  delegate_to: "{{ item }}"
 #  delegate_facts: true
-#  with_items: "{{ groups['control-plane'] + groups['workers'] }}"
+#  with_items: "{{ groups['control_plane'] + groups['workers'] }}"

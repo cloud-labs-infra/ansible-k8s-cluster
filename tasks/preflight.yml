@@ -1,0 +1,12 @@
+# tasks/preflight.yml
+---
+
+- name: Check CPUs count
+  ansible.builtin.assert:
+    that: ansible_processor_vcpus >= 2
+    fail_msg: "Requires at least 2 cpu. Current amount is {{ ansible_processor_vcpus }}"
+
+- name: Check RAM
+  ansible.builtin.assert:
+    that: ansible_memtotal_mb >= 2048
+    fail_msg: "RAM less than 2 GB. Current memory is {{ ansible_memtotal_mb }} MB"
