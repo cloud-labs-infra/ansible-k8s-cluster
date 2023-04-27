@@ -13,11 +13,10 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
-
-    - name: "Checkout"
+    - name: Set Up Git repository
       uses: actions/checkout@v3
 
-    - name: "Release"
+    - name: Release
       uses: cycjimmy/semantic-release-action@v3
       with:
         semantic_version: 18.0.0

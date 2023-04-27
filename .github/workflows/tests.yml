@@ -6,6 +6,7 @@ on:
 
 jobs:
   tests:
+    name: "Run tests"
     runs-on: ubuntu-20.04
     steps:
     # cgroup version shouldn't be cgroup2fs
@@ -22,11 +23,9 @@ jobs:
 
     - name: Install requirements
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        make init
 
-    # test every scenario with test_sequence from ../../molecule/default/molecule.yml
     - name: Run tests
       run: |
-        molecule lint
-        molecule test --all
+        make lint
+        make test
