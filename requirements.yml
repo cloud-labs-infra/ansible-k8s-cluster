@@ -1,8 +1,5 @@
 ---
 
-#- name: freehck.disable_swap
-#  version: v1.0.1
-
 - name: geerlingguy.docker
   version: 6.1.0
 

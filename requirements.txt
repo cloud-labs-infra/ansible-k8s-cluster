@@ -1,4 +1,5 @@
 ansible
 molecule==4.0.4
-molecule-docker
+molecule[docker]
+molecule[lint]
 ansible-lint

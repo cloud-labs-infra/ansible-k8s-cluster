@@ -13,33 +13,33 @@ k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 k8s_cluster_ignore_preflight_errors: "all"
 
 k8s_cluster_init_configuration:
- cgroupDriver: systemd
- maxPods: 110  # default 110
- failSwapOn: false
-# registerNode: true  # default true
-# registerWithTaints:  # takes effect when registerNode is true
-# # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#taint-v1-core
+  cgroupDriver: systemd
+  maxPods: 110  # default 110
+  failSwapOn: false
+#  registerNode: true  # default true
+#  registerWithTaints:  # takes effect when registerNode is true
+#  # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#taint-v1-core
 
 
 k8s_cluster_cluster_configuration:
- # etcd:
- #  external:
- #   endpoints: ["http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"]
- networking:
-  podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
- kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-# controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-# clusterName: 'my-shiny-cluster'
+#  etcd:
+#   external:
+#    endpoints: ["http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"]
+  networking:
+    podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
+  kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
+#  controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
+#  clusterName: 'my-shiny-cluster'
 
 k8s_cluster_kubelet_configuration:
- failSwapOn: false
- cgroupDriver: systemd
+  failSwapOn: false
+  cgroupDriver: systemd
 
 
 k8s_cluster_pod_network:
- # Flannel CNI.
- cni: 'flannel'
- cidr: '10.244.0.0/16'
+  # Flannel CNI.
+  cni: 'flannel'
+  cidr: '10.244.0.0/16'
 
 # https://github.com/flannel-io/flannel
 k8s_cluster_flannel_apply: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
