@@ -1,38 +1,34 @@
-name: "ansible-role-name: tests"
+name: "Run tests"
 
 on:
-  pull_request:
-    branches:
-      - 'main'
+  push:
+  workflow_dispatch:
 
 jobs:
   tests:
-    name: "tests"
+    name: "Run tests"
     runs-on: ubuntu-20.04
     steps:
-    # cgroup version shouldn't be "cgroup2fs"
+    # cgroup version shouldn't be cgroup2fs
     - name: Debug
       run: |
-        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]]
-#        sysctl net.netfilter.nf_conntrack_max=393216
-        env    
+        env
+        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
 
     - name: Set Up Git repository
       uses: actions/checkout@v3
 
     - name: Set Up Python
-      uses: actions/setup-python@v4
-
-    - name: Install requirements
-      run: |
-        sudo python -m pip install --upgrade pip
-        sudo python -m pip install -r requirements.txt
+      uses: actions/setup-python@v2
 
     - name: Setup upterm session
       uses: lhotari/action-upterm@v1
 
-    # Will test every scenario with test_sequence from ../../molecule/default/molecule.yml
+    - name: Install requirements
+      run: |
+        make init
+
     - name: Run tests
       run: |
-        sudo make test
-        sudo make lint
+        make lint
+        make test

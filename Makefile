@@ -11,9 +11,7 @@ init-configure-sysfs-for-mac:
 	  sponge ~/Library/Group\ Containers/group.com.docker/settings.json
 	  open --background -a Docker
 
-init-mac:
-	init
-	init-configure-sysfs-for-mac
+init-mac: init init-configure-sysfs-for-mac
 
 # test every scenario with test_sequence from ../../molecule/default/molecule.yml
 test:
