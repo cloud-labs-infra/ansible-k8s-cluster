@@ -21,12 +21,12 @@ jobs:
     - name: Set Up Python
       uses: actions/setup-python@v2
 
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-
     - name: Install requirements
       run: |
-        make init
+        make init ARGS="--ignore-installed PyYAML"
+
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
 
     - name: Run tests
       run: |

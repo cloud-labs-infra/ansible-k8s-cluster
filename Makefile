@@ -1,6 +1,6 @@
 init:
 	python3 -m pip install --upgrade pip
-	python3 -m pip install -r requirements.txt
+	python3 -m pip install -r requirements.txt $(ARGS)
 
 # https://github.com/docker/for-mac/issues/6073#issuecomment-1018793677
 init-configure-sysfs-for-mac:
