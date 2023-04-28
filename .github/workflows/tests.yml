@@ -15,6 +15,8 @@ jobs:
 
     - name: Set Up Python
       uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
     - name: Install requirements
       run: |
@@ -29,5 +31,5 @@ jobs:
     # Will test every scenario with test_sequence from ../../molecule/default/molecule.yml
     - name: Run tests
       run: |
-        molecule lint
-        molecule test --all
+        make test
+        make lint
