@@ -23,12 +23,13 @@ jobs:
 
     - name: Install requirements
       run: |
-        make init ARGS="--ignore-installed PyYAML"
+        make init
 
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
+#    - name: Set size of connection tracking table
+#      run: |
+#        sudo sysctl net.netfilter.nf_conntrack_max=393216
 
     - name: Run tests
       run: |
-        make lint
         make test
+        make lint
