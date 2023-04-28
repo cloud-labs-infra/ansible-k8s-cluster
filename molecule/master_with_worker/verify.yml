@@ -1,0 +1,9 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Include verify
+      ansible.builtin.include_tasks:
+        file: ../verify-common.yml

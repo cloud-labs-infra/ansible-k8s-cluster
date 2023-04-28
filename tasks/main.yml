@@ -5,4 +5,7 @@
 - include_tasks: configure.yml
 
 - include_tasks: control-plane-init.yml
-#  when: "'control_plane' in group_names"
+  when: "'control_plane' in group_names"
+
+- include_tasks: workers-init.yml
+  when: "'workers' in group_names"

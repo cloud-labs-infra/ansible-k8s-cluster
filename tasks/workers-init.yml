@@ -1,0 +1,5 @@
+# tasks/workers-init.yml
+---
+
+#- name: Join worker to control plane
+#  shell: "{{ kubernetes_join_command }}  2>&1 | tee /tmp/join.log"
