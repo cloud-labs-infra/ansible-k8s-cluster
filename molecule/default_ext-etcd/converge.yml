@@ -42,9 +42,6 @@
       etcd:
         external:
           endpoints: [ "http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379" ]
-          #caFile: ""
-          #certFile: ""
-          #keyFile: ""
       networking:
         serviceSubnet: 10.96.0.0/12
         podSubnet: 10.244.0.0/16
