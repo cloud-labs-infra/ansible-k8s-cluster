@@ -10,30 +10,29 @@ jobs:
     name: "tests"
     runs-on: ubuntu-20.04
     steps:
+    # cgroup version shouldn't be "cgroup2fs"
+    - name: Debug
+      run: |
+        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]]
+#        sysctl net.netfilter.nf_conntrack_max=393216
+        env    
+
     - name: Set Up Git repository
       uses: actions/checkout@v3
 
     - name: Set Up Python
       uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
 
     - name: Install requirements
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-   # Check a machine's cgroup version
-   # It shouldn't be "cgroup2fs"
-    - name: Debug
-      run: |
-        env
-        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
-    
+        sudo python -m pip install --upgrade pip
+        sudo python -m pip install -r requirements.txt
+
     - name: Setup upterm session
       uses: lhotari/action-upterm@v1
 
     # Will test every scenario with test_sequence from ../../molecule/default/molecule.yml
     - name: Run tests
       run: |
-        make test
-        make lint
+        sudo make test
+        sudo make lint
