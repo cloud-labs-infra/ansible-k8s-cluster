@@ -25,10 +25,6 @@ jobs:
       run: |
         make init
 
-#    - name: Set size of connection tracking table
-#      run: |
-#        sudo sysctl net.netfilter.nf_conntrack_max=393216
-
     - name: Run tests
       run: |
         make test
