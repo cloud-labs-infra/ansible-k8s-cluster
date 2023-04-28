@@ -28,6 +28,10 @@ jobs:
       run: |
         env
         [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
+    
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+
     # Will test every scenario with test_sequence from ../../molecule/default/molecule.yml
     - name: Run tests
       run: |
