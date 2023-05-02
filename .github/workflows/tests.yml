@@ -1,15 +1,20 @@
-name: "ansible-role-name: tests"
+name: "Run tests"
 
 on:
-  pull_request:
-    branches:
-      - 'main'
+  push:
+  workflow_dispatch:
 
 jobs:
   tests:
-    name: "tests"
+    name: "Run tests"
     runs-on: ubuntu-20.04
     steps:
+    # cgroup version shouldn't be cgroup2fs
+    - name: Debug
+      run: |
+        env
+        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
+
     - name: Set Up Git repository
       uses: actions/checkout@v3
 
@@ -18,16 +23,9 @@ jobs:
 
     - name: Install requirements
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-   # Check a machine's cgroup version
-   # It shouldn't be "cgroup2fs"
-    - name: Debug
-      run: |
-        env
-        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
-    # Will test every scenario with test_sequence from ../../molecule/default/molecule.yml
+        make init
+
     - name: Run tests
       run: |
-        molecule lint
-        molecule test --all
+        make test
+#        make lint

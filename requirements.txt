@@ -1,5 +1,5 @@
-molecule[docker]
-molecule
-molecule-vagrant
+ansible
+molecule==4.0.4
 molecule-docker
-molecule[lint]
+ansible-lint
+yamllint
