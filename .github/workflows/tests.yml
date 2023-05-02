@@ -25,6 +25,9 @@ jobs:
       run: |
         make init
 
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+
     - name: Run tests
       run: |
         make test
