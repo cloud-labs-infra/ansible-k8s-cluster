@@ -39,11 +39,13 @@
 # https://github.com/flannel-io/flannel
 - name: Configure Flannel networking
   ansible.builtin.shell: "kubectl apply -f {{ k8s_cluster_flannel_apply }} 2>&1 | tee /tmp/flannel.log"
+  changed_when: False
 
 - name: Get the kubeadm join command from the Kubernetes master.
   command: kubeadm token create --ttl 1h --print-join-command
   register: kubernetes_join_command_result
   delegate_to: "{{ groups['control_plane'][0] }}"
+  changed_when: False
 
 - name: Set the kubeadm join command for masters and nodes.
   ansible.builtin.set_fact:

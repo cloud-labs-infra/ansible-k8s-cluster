@@ -1,0 +1,31 @@
+name: "Run tests"
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: "Run tests"
+    runs-on: ubuntu-20.04
+    steps:
+    # cgroup version shouldn't be cgroup2fs
+    - name: Debug
+      run: |
+        env
+        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
+
+    - name: Set Up Git repository
+      uses: actions/checkout@v3
+
+    - name: Set Up Python
+      uses: actions/setup-python@v2
+
+    - name: Install requirements
+      run: |
+        make init
+
+    - name: Run tests
+      run: |
+        make test
+#        make lint

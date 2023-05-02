@@ -1,21 +1,21 @@
-python3 -m venv venv
+init:
+	python3 -m pip install --upgrade pip
+	python3 -m pip install -r requirements.txt
 
-wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install vagrant
+# https://github.com/docker/for-mac/issues/6073#issuecomment-1018793677
+init-configure-sysfs-for-mac:
+	test -z "$(docker ps -q 2>/dev/null)" && osascript -e 'quit app "Docker"'
+	brew install jq moreutils yamllint
+	echo '{"deprecatedCgroupv1": true}' | \
+	  jq -s '.[0] * .[1]' ~/Library/Group\ Containers/group.com.docker/settings.json - | \
+	  sponge ~/Library/Group\ Containers/group.com.docker/settings.json
+	  open --background -a Docker
 
-# source venv/bin/activate.fish
-source venv/bin/activate
+init-mac: init init-configure-sysfs-for-mac
 
-pip install -r requirements.txt
+# test every scenario with test_sequence from ../../molecule/default/molecule.yml
+test:
+	molecule test --all
 
-cd molecule/default
-
-vagrant box add generic/ubuntu2204
-
-# Followed that advise
-https://github.com/hashicorp/vagrant/issues/12601#issuecomment-979612233
-
-ansible-galaxy install -r ../../requirements.yml -p roles
-
-molecule create
+lint:
+	molecule lint
