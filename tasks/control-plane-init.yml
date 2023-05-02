@@ -17,11 +17,11 @@
   changed_when: False
 
 - name: Run kubeadm init
-  ansible.builtin.shell: |
-    kubeadm init \
-      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml \
-      --ignore-preflight-errors="{{ k8s_cluster_ignore_preflight_errors }}" \
-        > /tmp/kubeadm.log 2>&1
+  ansible.builtin.shell: >
+    kubeadm init
+    --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml
+    --ignore-preflight-errors="{{ k8s_cluster_init_ignore_preflight_errors }}"
+    > /tmp/kubeadm.log 2>&1
 
 - name: Ensure .kube directory exists.
   ansible.builtin.file:
@@ -45,9 +45,9 @@
   register: kubernetes_join_command_result
   delegate_to: "{{ groups['control_plane'][0] }}"
 
-#- name: Set the kubeadm join command for masters and nodes.
-#  ansible.builtin.set_fact:
-#    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
-#  delegate_to: "{{ item }}"
-#  delegate_facts: true
-#  with_items: "{{ groups['control_plane'] + groups['workers'] }}"
+- name: Set the kubeadm join command for masters and nodes.
+  ansible.builtin.set_fact:
+    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['control_plane'] + groups['workers'] }}"

@@ -35,4 +35,3 @@
     - name: "Include cloud_labs.k8s_cluster"
       include_role:
         name: "cloud_labs.k8s_cluster"
-#  docker commit <name> <tag> /// saves
