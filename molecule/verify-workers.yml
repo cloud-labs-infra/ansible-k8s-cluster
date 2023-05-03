@@ -14,6 +14,10 @@
 
 - name: Check that workers nodes are ready
   block:
+    - name: Check for node to be ready
+      ansible.builtin.pause:
+        minutes: 3
+
     - name: Get kubectl response
       ansible.builtin.shell: |
         kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
@@ -22,4 +26,5 @@
     - name: Check if worker is ready
       ansible.builtin.assert:
         that: kubectl_response.stdout == "True"
+        fail_msg: kubectl_response.stdout
   delegate_to: "{{ groups['control_plane'][0] }}"
