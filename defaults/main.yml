@@ -13,7 +13,10 @@ k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 k8s_cluster_init_ignore_preflight_errors: "all"
 k8s_cluster_join_ignore_preflight_errors: "all"
 
+k8s_cluster_loadbalancer_fqdn: "{{ ansible_default_ipv4.address }}"
+
 k8s_cluster_cluster_configuration:
+ controlPlaneEndpoint: "{{ k8s_cluster_loadbalancer_fqdn }}:6443"
 # etcd:
 #  external:
 #   endpoints: ["http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"]

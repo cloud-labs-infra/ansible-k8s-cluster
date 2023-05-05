@@ -6,23 +6,88 @@
     path: "{{ k8s_cluster_kubelet_config_root_dir }}"
     state: directory
 
-- name: Copy initial kubeadm template
-  ansible.builtin.template:
-    src: "kubeadm-config.yml.j2"
-    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
+- name: Create control plane configuration and certs directory
+  ansible.builtin.file:
+    path: "{{ k8s_cluster_kubelet_config_root_dir }}/pki/etcd"
+    state: directory
 
-- name: Pre pull required images
-  shell: |
-    kubeadm config images pull
-  changed_when: False
+- when: inventory_hostname == groups['control_plane'][0]
+  block:
+    - name: Copy initial kubeadm template
+      ansible.builtin.template:
+        src: "kubeadm-config.yml.j2"
+        dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
 
-- name: Run kubeadm init
-  ansible.builtin.shell: >
-    kubeadm init
-    --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml
-    --ignore-preflight-errors="{{ k8s_cluster_init_ignore_preflight_errors }}"
-    > /tmp/kubeadm.log 2>&1
-  changed_when: False
+    - name: Pre pull required images
+      shell: |
+        kubeadm config images pull
+      changed_when: False
+
+    - name: Run kubeadm init
+      ansible.builtin.shell: >
+        kubeadm init
+        --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml
+        --ignore-preflight-errors="{{ k8s_cluster_init_ignore_preflight_errors }}"
+        > /tmp/kubeadm.log 2>&1
+      changed_when: False
+
+    - name: Get the kubeadm join command from the Kubernetes master
+      command: kubeadm token create --ttl 1h --print-join-command
+      register: kubernetes_join_command_result
+      delegate_to: "{{ groups['control_plane'][0] }}"
+      changed_when: False
+
+    - name: Set the kubeadm join command for masters and workers
+      ansible.builtin.set_fact:
+        kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      with_items: "{{ groups['control_plane'] + groups['workers'] }}"
+      when: "'workers' in groups"
+
+    - name: Set the kubeadm join command for masters
+      ansible.builtin.set_fact:
+        kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      with_items: "{{ groups['control_plane'] }}"
+      when: "not 'workers' in groups"
+
+
+- when: inventory_hostname != groups['control_plane'][0]
+  block:
+    - name: Gather control plane configurations and certs
+      ansible.builtin.slurp:
+        src: "{{ item }}"
+      register: control_plane_files
+      with_items:
+        - /etc/kubernetes/pki/ca.crt
+        - /etc/kubernetes/pki/ca.key
+        - /etc/kubernetes/pki/sa.key
+        - /etc/kubernetes/pki/sa.pub
+        - /etc/kubernetes/pki/front-proxy-ca.crt
+        - /etc/kubernetes/pki/front-proxy-ca.key
+        - /etc/kubernetes/pki/etcd/ca.crt
+        - /etc/kubernetes/pki/etcd/ca.key
+        - /etc/kubernetes/admin.conf
+      delegate_to: "{{ groups['control_plane'][0] }}"
+
+    - name: Write control plane configuration and certs
+      ansible.builtin.copy:
+        dest: "{{ item.item }}"
+        content: "{{ item.content | b64decode }}"
+        mode: 0600
+      with_items: "{{ control_plane_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Join masters to control plane
+      ansible.builtin.shell: >
+        {{ kubernetes_join_command }}
+        --ignore-preflight-errors={{ k8s_cluster_join_ignore_preflight_errors }}
+        --control-plane
+        > /tmp/join.log 2>&1
+  
 
 - name: Ensure .kube directory exists.
   ansible.builtin.file:
@@ -38,28 +103,7 @@
     mode: 0644
 
 # https://github.com/flannel-io/flannel
-- name: Configure Flannel networking
+- when: inventory_hostname == groups['control_plane'][0]
+  name: Configure Flannel networking
   ansible.builtin.shell: "kubectl apply -f {{ k8s_cluster_flannel_apply }} 2>&1 | tee /tmp/flannel.log"
   changed_when: False
-
-- name: Get the kubeadm join command from the Kubernetes master.
-  command: kubeadm token create --ttl 1h --print-join-command
-  register: kubernetes_join_command_result
-  delegate_to: "{{ groups['control_plane'][0] }}"
-  changed_when: False
-
-- name: Set the kubeadm join command for masters and nodes.
-  ansible.builtin.set_fact:
-    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['control_plane'] + groups['workers'] }}"
-  when: "'workers' in groups"
-
-- name: Set the kubeadm join command for masters and nodes.
-  ansible.builtin.set_fact:
-    kubernetes_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['control_plane'] }}"
-  when: "not 'workers' in groups"

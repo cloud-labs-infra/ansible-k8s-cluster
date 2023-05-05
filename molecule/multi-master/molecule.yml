@@ -22,10 +22,11 @@ platforms:
       net.bridge.bridge-nf-call-ip6tables: 1
       net.ipv4.ip_forward: 1
   - <<: *default_platform
-    name: k8s-worker-01
-    hostname: k8s-worker-01
-    groups:
-      - workers
+    name: k8s-control-plane-02
+    hostname: k8s-control-plane-02
+  - <<: *default_platform
+    name: k8s-control-plane-03
+    hostname: k8s-control-plane-03
 provisioner:
   name: ansible
 scenario:
