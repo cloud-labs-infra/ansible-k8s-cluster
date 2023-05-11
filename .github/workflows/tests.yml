@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+      - name: Install requirements
+        run: |
+          make init
       - name: Run linters
         run: |
           make lint
@@ -42,10 +45,8 @@ jobs:
         run: |
           env
           [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]]
-
       - uses: actions/checkout@v3
-      - name: Set Up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
 
       - name: Install requirements
         run: |
