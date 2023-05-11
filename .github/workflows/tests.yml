@@ -41,13 +41,10 @@ jobs:
       matrix:
         scenario: ${{ fromJson(needs.prepare-matrix.outputs.molecule-scenarios) }}
     name: "Run tests"
+    # cgroup version shouldn't be cgroup2fs, check:
+    # stat -c %T -f /sys/fs/cgroup
     runs-on: ubuntu-20.04
     steps:
-      # cgroup version shouldn't be cgroup2fs
-      - name: Debug
-        run: |
-          env
-          [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]]
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
