@@ -1,8 +1,12 @@
+# tasks/main.yml
 ---
 
-- include_tasks: preflight.yml
+- name: Run preflight checks
+  ansible.builtin.include_tasks: preflight.yml
 
-- include_tasks: configure.yml
+- name: Configure host
+  ansible.builtin.include_tasks: configure.yml
 
-- include_tasks: control-plane-init.yml
+- name: Initialize control-plane
+  ansible.builtin.include_tasks: control-plane-init.yml
 #  when: "'control_plane' in group_names"

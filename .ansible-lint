@@ -1,0 +1,6 @@
+# https://ansible-lint.readthedocs.io/rules/
+skip_list:
+  - 'yaml'
+  - 'role-name'
+  - 'risky-shell-pipe'
+  - 'name[casing]'

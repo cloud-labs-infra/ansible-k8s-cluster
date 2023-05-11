@@ -1,18 +1,24 @@
-# tasks/initialize-k8s-cluster
+# tasks/control-plane-init.yml
 ---
 
 - name: Create kubelet root directory
   ansible.builtin.file:
     path: "{{ k8s_cluster_kubelet_config_root_dir }}"
     state: directory
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Copy initial kubeadm template
   ansible.builtin.template:
     src: "kubeadm-config.yml.j2"
     dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
+    owner: root
+    group: root
+    mode: 0640
 
 - name: Pre pull required images
-  shell: |
+  ansible.builtin.shell: |
     kubeadm config images pull
   changed_when: False
 
@@ -39,11 +45,13 @@
 
 # https://github.com/flannel-io/flannel
 - name: Configure Flannel networking
-  ansible.builtin.shell: "kubectl apply -f {{ k8s_cluster_flannel_apply }} 2>&1 | tee /tmp/flannel.log"
+  ansible.builtin.shell: |
+    kubectl apply -f {{ k8s_cluster_flannel_apply }} > /tmp/flannel.log 2>&1
   changed_when: False
 
 - name: Get the kubeadm join command from the Kubernetes master.
-  command: kubeadm token create --ttl 1h --print-join-command
+  ansible.builtin.shell: |
+    kubeadm token create --ttl 1h --print-join-command
   register: kubernetes_join_command_result
   delegate_to: "{{ groups['control_plane'][0] }}"
   changed_when: False
