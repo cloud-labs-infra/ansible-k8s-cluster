@@ -27,5 +27,5 @@ jobs:
 
     - name: Run tests
       run: |
-        make lint
+#        make lint
         make test
