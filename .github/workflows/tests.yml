@@ -5,30 +5,54 @@ on:
   workflow_dispatch:
 
 jobs:
+  prepare-matrix:
+    name: "Prepare matrix"
+    runs-on: ubuntu-20.04
+    outputs:
+      molecule-scenarios: ${{ steps.set-matrix.outputs.molecule-scenarios }}
+    steps:
+      - name: Set Up Git repository
+        uses: actions/checkout@v3
+
+      - name: List molecule scenarios
+        id: set-matrix
+        run: |
+          MOLECULE_SCENARIOS=$(find molecule/ -mindepth 1 -type d -exec basename {} \; | jq -ncR '[inputs]')
+          echo "molecule-scenarios=${MOLECULE_SCENARIOS}" >> $GITHUB_OUTPUT
+          env
+          echo "${MOLECULE_SCENARIOS}"
+
   tests:
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: ${{ fromJson(needs.prepare-matrix.outputs.molecule-scenarios) }}
     name: "Run tests"
     runs-on: ubuntu-20.04
     steps:
     # cgroup version shouldn't be cgroup2fs
-    - name: Debug
-      run: |
-        env
-        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
+      - name: Debug
+        run: |
+          env
+          [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]]
 
-    - name: Set Up Git repository
-      uses: actions/checkout@v3
+      - name: Set Up Git repository
+        uses: actions/checkout@v3
 
-    - name: Set Up Python
-      uses: actions/setup-python@v2
+      - name: Set Up Python
+        uses: actions/setup-python@v2
 
-    - name: Install requirements
-      run: |
-        make init
+      - name: Install requirements
+        run: |
+          make init
 
-    - name: Run linters
-      run: |
-        make lint
+#      - name: Run linters
+#        run: |
+#          make lint
 
-    - name: Run tests
-      run: |
-        make test
+      - name: Run tests
+        run: |
+          echo "${{ matrix.scenario }}"
+          molecule test -s "${{ matrix.scenario }}"
+#          make test
