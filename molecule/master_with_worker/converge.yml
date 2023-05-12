@@ -1,6 +1,7 @@
 ---
 
-- hosts: localhost
+- name: Configure host
+  hosts: localhost
   connection: local
   pre_tasks:
     - name: Set proper nf_conntrack_max
@@ -11,11 +12,13 @@
         state: present
         reload: true
 
-- hosts: all
+- name: Configure instances
+  hosts: all
   gather_facts: false
   tasks:
-    - raw: apt update && apt install -y python3-pip python3 python3-apt
-      changed_when: False
+    - name: Install Python
+      ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
+      changed_when: false
 
 - name: Converge
   hosts: all
@@ -34,5 +37,5 @@
       ansible.builtin.setup:
   tasks:
     - name: "Include cloud_labs.k8s_cluster"
-      include_role:
+      ansible.builtin.include_role:
         name: "cloud_labs.k8s_cluster"

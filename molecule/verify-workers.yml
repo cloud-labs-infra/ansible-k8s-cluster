@@ -1,18 +1,20 @@
 ---
 
 - name: Debug workers node
+  delegate_to: "{{ groups['control_plane'][0] }}"
   block:
     - name: Query health endpoint to show output
       ansible.builtin.shell: |
         kubectl get node {{ ansible_hostname }}
       register: kubectl_show
+      changed_when: false
 
     - name: Debug kubectl_show for {{ ansible_hostname }}
       ansible.builtin.debug:
         var: kubectl_show
-  delegate_to: "{{ groups['control_plane'][0] }}"
 
 - name: Check that workers nodes are ready
+  delegate_to: "{{ groups['control_plane'][0] }}"
   block:
     - name: Check for node to be ready
       ansible.builtin.pause:
@@ -22,9 +24,9 @@
       ansible.builtin.shell: |
         kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
       register: kubectl_response
+      changed_when: false
 
     - name: Check if worker is ready
       ansible.builtin.assert:
         that: kubectl_response.stdout == "True"
         fail_msg: kubectl_response.stdout
-  delegate_to: "{{ groups['control_plane'][0] }}"
