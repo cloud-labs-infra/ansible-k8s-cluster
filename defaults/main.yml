@@ -7,21 +7,43 @@ k8s_cluster_kubectl_version: '1.26.0-00'
 k8s_cluster_apt_key_url: 'https://packages.cloud.google.com/apt/doc/apt-key.gpg'
 k8s_cluster_apt_repository: 'deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main'
 
-# defaults for kubeadm-config
 k8s_cluster_kubernetes_version: 1.26.0
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 k8s_cluster_init_ignore_preflight_errors: "all"
 k8s_cluster_join_ignore_preflight_errors: "all"
 
+# https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-InitConfiguration
+k8s_cluster_init_configuration:
+  # localAPIEndpoint represents the endpoint of the API server instance that's deployed on this
+  # control plane node. In HA setups, this differs from ClusterConfiguration.controlPlaneEndpoint
+  # in the sense that controlPlaneEndpoint is the global endpoint for the cluster, which then
+  # load-balances the requests to each individual API server. This configuration object lets you
+  # customize what IP/DNS name and port the local API server advertises it's accessible on.
+  # By default, kubeadm tries to auto-detect the IP of the default interface and use that, but in
+  # case that process fails you may set the desired value here.
+  localAPIEndpoint:
+    advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+    #bindPort: 6443  # default 6443
+
+# https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-ClusterConfiguration
 k8s_cluster_cluster_configuration:
-# etcd:
-#  external:
-#   endpoints: ["http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379"]
- networking:
-  podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
- kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-# controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-# clusterName: 'my-shiny-cluster'
+  networking:
+    podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
+  kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
+
+# https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/
+k8s_cluster_kubelet_configuration:
+  cgroupDriver: systemd
+  failSwapOn: false
+#  registerNode: true  # default true
+#  registerWithTaints: []  # takes effect when registerNode is true
+#  # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#taint-v1-core
+
+# https://kubernetes.io/docs/reference/config-api/kube-proxy-config.v1alpha1/
+k8s_cluster_kubeproxy_configuration: ""
+
+# https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-JoinConfiguration
+k8s_cluster_join_configuration: ""
 
 k8s_cluster_pod_network:
   # Flannel CNI.

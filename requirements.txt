@@ -1,6 +1,7 @@
-ansible-compat==3.0.2
 ansible
+ansible-compat==3.0.2
 molecule==4.0.4
-molecule-docker
+molecule[docker]
+molecule[lint]
 ansible-lint
 yamllint

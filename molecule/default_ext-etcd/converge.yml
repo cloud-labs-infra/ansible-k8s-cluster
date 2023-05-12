@@ -1,6 +1,7 @@
 ---
 
-- hosts: localhost
+- name: Configure host
+  hosts: localhost
   connection: local
   become: yes
   pre_tasks:
@@ -12,37 +13,14 @@
         state: present
         reload: true
 
-- hosts: all
+- name: Configure instances
+  hosts: all
   gather_facts: false
   tasks:
-    - raw: apt update && apt install -y python3-pip python3 python3-apt
-      changed_when: False
+    - name: Install Python
+      ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
+      changed_when: false
 
-- name: Converge
-  hosts: all
-  become: yes
-  become_method: su
-  gather_facts: false
-  vars:
-    # cloud_labs.k8s_cluster role related variables
-    k8s_cluster_kubernetes_version: 1.26.0
-    k8s_cluster_cluster_configuration:
-      etcd:
-        external:
-          endpoints: [ "http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379" ]
-          #caFile: ""
-          #certFile: ""
-          #keyFile: ""
-      networking:
-        serviceSubnet: 10.96.0.0/12
-        podSubnet: 10.244.0.0/16
-        dnsDomain: cluster.local
-      kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-      # In a cluster with more than one control plane instances, this field should be assigned
-      # the address of the external load balancer in front of the control plane instances
-      controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-      clusterName: 'my-shiny-cluster'
-  pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
@@ -52,12 +30,35 @@
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
+
+- name: Converge
+  hosts: all
+  become: yes
+  become_method: su
+  gather_facts: true
+  vars:
+    # cloud_labs.k8s_cluster role related variables
+    k8s_cluster_kubernetes_version: 1.26.0
+    k8s_cluster_cluster_configuration:
+      etcd:
+        external:
+          endpoints: [ "http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379" ]
+      networking:
+        serviceSubnet: 10.96.0.0/12
+        podSubnet: 10.244.0.0/16
+        dnsDomain: cluster.local
+      kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
+      # In a cluster with more than one control plane instances, this field should be assigned
+      # the address of the external load balancer in front of the control plane instances
+      controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
+      clusterName: 'my-shiny-cluster'
   roles:
     - { role: andrewrothstein.etcd }
     - { role: ansible-etcd-cluster }
   tasks:
-    - meta: flush_handlers
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
 
     - name: "Include cloud_labs.k8s_cluster"
-      include_role:
+      ansible.builtin.include_role:
         name: "cloud_labs.k8s_cluster"

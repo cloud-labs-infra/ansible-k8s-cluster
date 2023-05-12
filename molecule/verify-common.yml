@@ -2,19 +2,26 @@
 
 - name: Check Kubernetes API health
   block:
-    - name: Query health endpoint to show output
+    - name: Query health endpoint to show output  # noqa: command-instead-of-module
       ansible.builtin.shell: |
+        set -o pipefail && \
         curl -k https://localhost:6443/livez?verbose 2>/dev/null
+      args:
+        executable: /bin/bash
       register: curl_show
+      changed_when: False
 
     - name: Debug
       ansible.builtin.debug:
         var: curl_show
 
     # https://kubernetes.io/docs/reference/using-api/health-checks/
-    - name: Query health endpoint to count checks
+    - name: Query health endpoint to count checks  # noqa: command-instead-of-module
       ansible.builtin.shell: |
+        set -o pipefail && \
         curl -k https://localhost:6443/livez?verbose 2>/dev/null | awk '/^\[/{print $NF}' | sort | uniq -c | wc -l
+      args:
+        executable: /bin/bash
       register: curl
       changed_when: False
 

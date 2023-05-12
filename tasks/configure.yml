@@ -1,3 +1,4 @@
+# tasks/configure.yml
 ---
 
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
@@ -22,7 +23,7 @@
     #    filename: kubernetes
     update_cache: true
 
-- name: install Kubernetes components
+- name: Install Kubernetes components
   ansible.builtin.apt:
     name:
       - kubelet={{ k8s_cluster_kubelet_version }}
@@ -45,6 +46,9 @@
   ansible.builtin.copy:
     src: modules-load.d_k8s.conf
     dest: "/etc/modules-load.d/k8s.conf"
+    owner: root
+    group: root
+    mode: 0640
 
 - name: Load kernel modules
   community.general.modprobe:
@@ -70,3 +74,6 @@
   ansible.builtin.copy:
     content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
     dest: /etc/crictl.yaml
+    owner: root
+    group: root
+    mode: 0640

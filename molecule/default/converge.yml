@@ -1,6 +1,7 @@
 ---
 
-- hosts: localhost
+- name: Configure host
+  hosts: localhost
   connection: local
   become: yes
   pre_tasks:
@@ -12,18 +13,14 @@
         state: present
         reload: true
 
-- hosts: all
+- name: Configure instances
+  hosts: all
   gather_facts: false
   tasks:
-    - raw: apt update && apt install -y python3-pip python3 python3-apt
-      changed_when: False
+    - name: Install Python
+      ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
+      changed_when: false
 
-- name: Converge
-  hosts: all
-  become: yes
-  become_method: su
-  gather_facts: false
-  pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
@@ -33,7 +30,13 @@
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
+
+- name: Converge
+  hosts: all
+  become: yes
+  become_method: su
+  gather_facts: false
   tasks:
     - name: "Include cloud_labs.k8s_cluster"
-      include_role:
+      ansible.builtin.include_role:
         name: "cloud_labs.k8s_cluster"
