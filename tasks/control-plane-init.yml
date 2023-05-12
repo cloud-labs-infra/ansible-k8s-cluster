@@ -23,11 +23,11 @@
   changed_when: False
 
 - name: Run kubeadm init
-  ansible.builtin.shell: >
-    kubeadm init
-    --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml
-    --ignore-preflight-errors="{{ k8s_cluster_init_ignore_preflight_errors }}"
-    > /tmp/kubeadm.log 2>&1
+  ansible.builtin.shell: |
+    kubeadm init \
+      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml \
+      --ignore-preflight-errors="{{ k8s_cluster_init_ignore_preflight_errors }}" \
+        > /tmp/kubeadm.log 2>&1
   changed_when: False
 
 - name: Ensure .kube directory exists
