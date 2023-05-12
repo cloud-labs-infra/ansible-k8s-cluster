@@ -3,6 +3,7 @@
 - name: Configure host
   hosts: localhost
   connection: local
+  become: yes
   pre_tasks:
     - name: Set proper nf_conntrack_max
       ansible.posix.sysctl:
