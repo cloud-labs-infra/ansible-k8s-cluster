@@ -32,7 +32,3 @@
     - name: API health is Ok
       ansible.builtin.assert:
         that: curl.stdout | int == 1
-
-- name: Include kubelet
-  ansible.builtin.include_tasks:
-    file: ../verify-kubelet.yml

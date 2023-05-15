@@ -4,17 +4,21 @@
   hosts: control_plane
   gather_facts: false
   tasks:
-    - name: Include verify common
+    - name: Include checks for control plane
       ansible.builtin.include_tasks:
         file: ../verify-common.yml
+
+    - name: Include kubelet checks
+      ansible.builtin.include_tasks:
+        file: ../verify-kubelet.yml
 
 - name: Verify workers
   hosts: workers
   tasks:
-    - name: Include verify workers
+    - name: Include checks for worker
       ansible.builtin.include_tasks:
         file: ../verify-workers.yml
 
-    - name: Include verify
+    - name: Include kubelet checks
       ansible.builtin.include_tasks:
         file: ../verify-kubelet.yml
