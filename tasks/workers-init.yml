@@ -4,6 +4,6 @@
 - name: Join worker to control plane
   ansible.builtin.shell: |
     {{ k8s_cluster_join_command }} \
-      --ignore-preflight-errors={{ k8s_cluster_join_ignore_preflight_errors }} \
+      --ignore-preflight-errors={{ k8s_cluster_ignore_preflight_errors }} \
         > /tmp/join.log 2>&1
   changed_when: false
