@@ -27,6 +27,7 @@
           - iproute2  # provides network facts
           - kmod  # modprobe and lsmod
           - net-tools
+          - curl
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
