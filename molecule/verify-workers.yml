@@ -16,16 +16,15 @@
 - name: Check workers nodes are ready
   delegate_to: "{{ groups['control_plane'][0] }}"
   block:
-    - name: Wait for node to be ready
-      ansible.builtin.pause:
-        minutes: 3
-
     - name: Get kubectl response
       ansible.builtin.shell: |
         kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
       register: kubectl_response
       changed_when: false
-# curl -i http://localhost:10248/healthz
+      until: kubectl_response.stdout == "True"
+      retries: 48
+      delay: 5
+
     - name: Check if worker is ready
       ansible.builtin.assert:
         that: kubectl_response.stdout == "True"
