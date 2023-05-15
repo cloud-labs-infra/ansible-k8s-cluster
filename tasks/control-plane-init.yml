@@ -61,14 +61,13 @@
     k8s_cluster_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
   delegate_to: "{{ item }}"
   delegate_facts: true
-  with_items: "{{ groups['control_plane'] + groups['workers'] }}"
+  loop: "{{ groups['control_plane'] + groups['workers'] }}"
   when: "'workers' in groups"
-# try move to loop instead of with_items
 
 - name: Set the kubeadm join command for masters and nodes
   ansible.builtin.set_fact:
     k8s_cluster_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
   delegate_to: "{{ item }}"
   delegate_facts: true
-  with_items: "{{ groups['control_plane'] }}"
+  loop: "{{ groups['control_plane'] }}"
   when: "not 'workers' in groups"
