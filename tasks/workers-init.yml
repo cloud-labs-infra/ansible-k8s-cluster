@@ -4,6 +4,6 @@
 - name: Join worker to control plane
   ansible.builtin.shell: |
     {{ k8s_cluster_join_command }} \
-      k8s_cluster_join_command_extra_opts \
+      {{ k8s_cluster_join_command_extra_opts }} \
         > /tmp/join.log 2>&1
   changed_when: false
