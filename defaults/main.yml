@@ -9,8 +9,7 @@ k8s_cluster_apt_repository: 'deb [signed-by=/usr/share/keyrings/kubernetes-archi
 
 k8s_cluster_kubernetes_version: 1.26.0
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
-k8s_cluster_init_extra_opts: --ignore-preflight-errors=all
-k8s_cluster_join_command_extra_opts: --ignore-preflight-errors=all
+k8s_cluster_ignore_preflight_errors: "all"
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-InitConfiguration
 k8s_cluster_init_configuration:
