@@ -1,4 +1,4 @@
-# tasks/control-plane-init.yml
+# tasks/init-control-plane.yml
 ---
 
 - name: Create kubelet root directory

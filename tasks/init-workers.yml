@@ -1,4 +1,4 @@
-# tasks/workers-init.yml
+# tasks/init-workers.yml
 ---
 
 - name: Join worker to control plane
