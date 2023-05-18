@@ -13,7 +13,7 @@
       --ignore-preflight-errors={{ k8s_cluster_ignore_preflight_errors }} \
         > /tmp/kubeadm.log 2>&1
   changed_when: False
-  when: k8s_cluster_initial_master | bool == true
+  when: k8s_cluster_initial_master | bool
 
 - name: Ensure .kube directory exists
   ansible.builtin.file:
@@ -33,7 +33,7 @@
   ansible.builtin.shell: |
     kubectl apply -f {{ k8s_cluster_flannel_apply }} > /tmp/flannel.log 2>&1
   changed_when: False
-  when: k8s_cluster_initial_master | bool == true
+  when: k8s_cluster_initial_master | bool
 
 - name: Post init tasks
   block:
@@ -41,7 +41,7 @@
       ansible.builtin.shell: |
         kubeadm token create --ttl 24h
       register: kubernetes_join_command_result
-      when: k8s_cluster_initial_master | bool == true
+      when: k8s_cluster_initial_master | bool
       changed_when: False
 
     - name: Set kubeadm token variable for other nodes
@@ -61,7 +61,7 @@
       args:
         executable: /usr/bin/bash
       register: get_root_ca_command_result
-      when: k8s_cluster_initial_master | bool == true
+      when: k8s_cluster_initial_master | bool
       changed_when: False
 
     - name: Set root CA certificate hash variable for other nodes
