@@ -25,7 +25,7 @@ k8s_cluster_init_configuration:
   # case that process fails you may set the desired value here.
   localAPIEndpoint:
     advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-    #bindPort: 6443  # default 6443
+    bindPort: 6443  # default 6443
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-ClusterConfiguration
 k8s_cluster_cluster_configuration:
@@ -62,7 +62,7 @@ k8s_cluster_join_configuration:
   discovery:
     bootstrapToken:
       token: "{{ k8s_cluster_join_token }}"
-      apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:6443"
+      apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
       # caCertHashes specifies a set of public key pins to verify when token-based discovery
       # is used. The root CA found during discovery must match one of these values. Specifying
       # an empty set disables root CA pinning, which can be unsafe. Each hash is specified
