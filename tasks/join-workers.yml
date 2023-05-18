@@ -1,0 +1,26 @@
+# tasks/join-workers.yml
+---
+
+- name: Create kubelet root directory
+  ansible.builtin.file:
+    path: "{{ k8s_cluster_kubelet_config_root_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy initial kubeadm template
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0640
+  loop: ["kubeadm-join-config.yml"]
+
+- name: Join workers to cluster
+  ansible.builtin.shell: |
+    kubeadm join \
+      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-join-config.yml \
+        > /tmp/join.log 2>&1
+  changed_when: false

@@ -1,22 +1,6 @@
 # tasks/init-control-plane.yml
 ---
 
-- name: Create kubelet root directory
-  ansible.builtin.file:
-    path: "{{ k8s_cluster_kubelet_config_root_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-
-- name: Copy initial kubeadm template
-  ansible.builtin.template:
-    src: "kubeadm-config.yml.j2"
-    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
-    owner: root
-    group: root
-    mode: 0640
-
 - name: Pre pull required images
   ansible.builtin.shell: |
     kubeadm config images pull
@@ -29,6 +13,7 @@
       --ignore-preflight-errors={{ k8s_cluster_ignore_preflight_errors }} \
         > /tmp/kubeadm.log 2>&1
   changed_when: False
+  when: k8s_cluster_initial_master | bool == true
 
 - name: Ensure .kube directory exists
   ansible.builtin.file:
@@ -48,17 +33,47 @@
   ansible.builtin.shell: |
     kubectl apply -f {{ k8s_cluster_flannel_apply }} > /tmp/flannel.log 2>&1
   changed_when: False
+  when: k8s_cluster_initial_master | bool == true
 
-- name: Get the kubeadm join command from the Kubernetes master
-  ansible.builtin.shell: |
-    kubeadm token create --ttl 1h --print-join-command
-  register: kubernetes_join_command_result
-  delegate_to: "{{ groups['control_plane'][0] }}"
-  changed_when: False
+- name: Post init tasks
+  block:
+    - name: Get kubeadm token to join other nodes
+      ansible.builtin.shell: |
+        kubeadm token create --ttl 24h
+      register: kubernetes_join_command_result
+      when: k8s_cluster_initial_master | bool == true
+      changed_when: False
 
-- name: Set the kubeadm join command for masters and worker nodes
-  ansible.builtin.set_fact:
-    k8s_cluster_join_command: "{{ kubernetes_join_command_result.stdout | default('') }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  loop: "{{ groups['control_plane'] + groups['workers'] | default([]) }}"
+    - name: Set kubeadm token variable for other nodes
+      ansible.builtin.set_fact:
+        k8s_cluster_join_token: "{{ kubernetes_join_command_result.stdout }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ ansible_play_hosts }}"
+
+    - name: Get root CA certificate hash
+      ansible.builtin.shell: |
+        set -o pipefail \
+        && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
+          | openssl rsa -pubin -outform der 2>/dev/null \
+          | openssl dgst -sha256 -hex \
+          | sed 's/^.* //'
+      args:
+        executable: /usr/bin/bash
+      register: get_root_ca_command_result
+      when: k8s_cluster_initial_master | bool == true
+      changed_when: False
+
+    - name: Set root CA certificate hash variable for other nodes
+      ansible.builtin.set_fact:
+        k8s_cluster_root_ca_hash: "{{ get_root_ca_command_result.stdout }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ ansible_play_hosts }}"
+
+    - name: Set API server ip address
+      ansible.builtin.set_fact:
+        k8s_cluster_api_server_ip: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ ansible_play_hosts }}"
