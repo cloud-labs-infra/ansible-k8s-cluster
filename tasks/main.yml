@@ -8,9 +8,9 @@
   ansible.builtin.include_tasks: configure.yml
 
 - name: Initialize control-plane
-  ansible.builtin.include_tasks: control-plane-init.yml
+  ansible.builtin.include_tasks: init-control-plane.yml
   when: "'control_plane' in group_names"
 
 - name: Initialize workers
-  ansible.builtin.include_tasks: workers-init.yml
+  ansible.builtin.include_tasks: init-workers.yml
   when: "'workers' in group_names"
