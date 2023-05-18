@@ -9,8 +9,8 @@
 
 - name: Initialize control-plane
   ansible.builtin.include_tasks: init-control-plane.yml
-  when: "'control_plane' in group_names"
+  when: k8s_cluster_node_type == 'master'
 
 - name: Initialize workers
   ansible.builtin.include_tasks: init-workers.yml
-  when: "'workers' in group_names"
+  when: k8s_cluster_node_type == 'worker'

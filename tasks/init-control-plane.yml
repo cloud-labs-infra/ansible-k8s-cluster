@@ -28,6 +28,7 @@
       --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml \
       --ignore-preflight-errors={{ k8s_cluster_ignore_preflight_errors }} \
         > /tmp/kubeadm.log 2>&1
+  when: k8s_cluster_initial_master
   changed_when: False
 
 - name: Ensure .kube directory exists
@@ -53,7 +54,7 @@
   ansible.builtin.shell: |
     kubeadm token create --ttl 1h --print-join-command
   register: kubernetes_join_command_result
-  delegate_to: "{{ groups['control_plane'][0] }}"
+  when: k8s_cluster_initial_master
   changed_when: False
 
 - name: Set the kubeadm join command for masters and worker nodes
