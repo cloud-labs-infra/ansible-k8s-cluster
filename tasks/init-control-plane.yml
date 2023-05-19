@@ -21,7 +21,22 @@
       --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-init-config.yml \
         > /tmp/kubeadm.log 2>&1
   changed_when: False
+  ignore_errors: true
+#  when: services_state.ansible_facts.services['kubelet.service'].state != "running"
 #  when: k8s_cluster_initial_master | bool
+
+- block:
+    - name: Query logs
+      ansible.builtin.shell: |
+        cat /tmp/kubeadm.log
+      args:
+        executable: /bin/bash
+      register: cat_show
+      changed_when: False
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: cat_show
 
 #- name: Ensure .kube directory exists
 #  ansible.builtin.file:
@@ -44,6 +59,7 @@
       --kubeconfig=/etc/kubernetes/admin.conf \
         > /tmp/flannel.log 2>&1
   changed_when: False
+#  when: services_state.ansible_facts.services['kubelet.service'].state != "running"
 #  when: k8s_cluster_initial_master | bool
 
 - name: Post init tasks

@@ -16,6 +16,7 @@
       --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-join-config.yml \
         > /tmp/join.log 2>&1
   changed_when: false
+  when: services_state.ansible_facts.services['kubelet.service'].state == "running"
 
 - name: Check workers until ready
   ansible.builtin.shell: |

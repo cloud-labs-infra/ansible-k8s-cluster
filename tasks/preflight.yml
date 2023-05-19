@@ -10,3 +10,19 @@
   ansible.builtin.assert:
     that: ansible_memtotal_mb >= 2048
     fail_msg: "RAM less than 2 GB. Current memory is {{ ansible_memtotal_mb }} MB"
+
+- name: Check kubelet
+  block:
+    - name: Collect facts about systemd services
+      ansible.builtin.service_facts:
+      register: services_state
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: services_state.ansible_facts.services['kubelet.service']
+
+#    - name: Check if kubelet service is in running state
+#      ansible.builtin.assert:
+#        that: services_state.ansible_facts.services['kubelet.service'].state == "running"
+#      ignore_errors: yes
+#      register: etcd_state
