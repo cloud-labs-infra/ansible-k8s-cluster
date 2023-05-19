@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/compare/v1.1.0...v1.2.0) (2023-05-19)
+
+
+### Features
+
+* join workers ([#20](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/issues/20)) ([056f694](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/commit/056f694175e9daeab3d6f3856a8a211333bae4da))
+
 ## [1.1.0](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/compare/v1.0.0...v1.1.0) (2023-05-11)
 
 

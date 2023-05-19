@@ -1,14 +1,6 @@
 # tasks/join-workers.yml
 ---
 
-- name: Create kubelet root directory
-  ansible.builtin.file:
-    path: "{{ k8s_cluster_kubelet_config_root_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-
 - name: Copy initial kubeadm template
   ansible.builtin.template:
     src: "{{ item }}.j2"
@@ -24,3 +16,13 @@
       --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-join-config.yml \
         > /tmp/join.log 2>&1
   changed_when: false
+
+- name: Check workers until ready
+  ansible.builtin.shell: |
+    kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
+  register: kubectl_response
+  changed_when: false
+  delegate_to: "{{ k8s_cluster_init_main_node_hostname }}"
+  until: kubectl_response.stdout == "True"
+  retries: 48
+  delay: 5

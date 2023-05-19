@@ -51,13 +51,10 @@ k8s_cluster_join_configuration:
   # node only (e.g. the node ip)
   nodeRegistration:
     ignorePreflightErrors:
-#      - Hostname
-#      - HTTPProxyCIDR
       - SystemVerification
-#      - KubernetesVersion
-#      - KubeletVersion
-#      - Swap
-#      - ExternalEtcdVersion
+      - FileAvailable
+      - DirAvailable
+      - Port
   # options for the kubelet to use during the TLS bootstrap process
   discovery:
     bootstrapToken:
