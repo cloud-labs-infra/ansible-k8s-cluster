@@ -1,6 +1,15 @@
 # tasks/init-control-plane.yml
 ---
 
+- name: Copy initial kubeadm template
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0640
+  loop: ["kubeadm-init-config.yml"]
+
 - name: Pre pull required images
   ansible.builtin.shell: |
     kubeadm config images pull
@@ -9,7 +18,7 @@
 - name: Run kubeadm init
   ansible.builtin.shell: |
     kubeadm init \
-      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml \
+      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-init-config.yml \
       --ignore-preflight-errors={{ k8s_cluster_ignore_preflight_errors }} \
         > /tmp/kubeadm.log 2>&1
   changed_when: False

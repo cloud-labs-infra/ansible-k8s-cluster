@@ -85,11 +85,3 @@
     owner: root
     group: root
     mode: 0755
-
-- name: Copy initial kubeadm template
-  ansible.builtin.template:
-    src: "kubeadm-config.yml.j2"
-    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-config.yml"
-    owner: root
-    group: root
-    mode: 0640
