@@ -32,19 +32,3 @@
     - name: API health is Ok
       ansible.builtin.assert:
         that: curl.stdout | int == 1
-
-- name: Check kubelet
-  block:
-    - name: Collect facts about systemd services
-      ansible.builtin.service_facts:
-      register: services_state
-
-    - name: Debug
-      ansible.builtin.debug:
-        var: services_state.ansible_facts.services['kubelet.service']
-
-    - name: Check if etcd service is in running state
-      ansible.builtin.assert:
-        that: services_state.ansible_facts.services['kubelet.service'].state == "running"
-      ignore_errors: yes
-      register: etcd_state

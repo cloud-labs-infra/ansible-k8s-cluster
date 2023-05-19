@@ -11,6 +11,9 @@ k8s_cluster_kubernetes_version: 1.26.0
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 k8s_cluster_ignore_preflight_errors: "all"
 
+k8s_cluster_node_type: worker
+k8s_cluster_initial_master: false
+
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-InitConfiguration
 k8s_cluster_init_configuration:
   # localAPIEndpoint represents the endpoint of the API server instance that's deployed on this
@@ -22,7 +25,7 @@ k8s_cluster_init_configuration:
   # case that process fails you may set the desired value here.
   localAPIEndpoint:
     advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-    #bindPort: 6443  # default 6443
+    bindPort: 6443  # default 6443
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-ClusterConfiguration
 k8s_cluster_cluster_configuration:
@@ -34,15 +37,44 @@ k8s_cluster_cluster_configuration:
 k8s_cluster_kubelet_configuration:
   cgroupDriver: systemd
   failSwapOn: false
-#  registerNode: true  # default true
-#  registerWithTaints: []  # takes effect when registerNode is true
-#  # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#taint-v1-core
 
 # https://kubernetes.io/docs/reference/config-api/kube-proxy-config.v1alpha1/
 k8s_cluster_kubeproxy_configuration: ""
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-JoinConfiguration
-k8s_cluster_join_configuration: ""
+#
+# configuration below is optimized to join worker nodes
+# for master nodes it could be required to add JoinConfiguration.JoinControlPlane field
+k8s_cluster_join_configuration:
+  # holds fields that relate to registering the new node to the cluster; use it to customize
+  # the node name, the CRI socket to use or any other settings that should apply to this
+  # node only (e.g. the node ip)
+  nodeRegistration:
+    ignorePreflightErrors:
+      - SystemVerification
+      - FileAvailable
+      - DirAvailable
+      - Port
+  # options for the kubelet to use during the TLS bootstrap process
+  discovery:
+    bootstrapToken:
+      token: "{{ k8s_cluster_join_token }}"
+      apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
+      # caCertHashes specifies a set of public key pins to verify when token-based discovery
+      # is used. The root CA found during discovery must match one of these values. Specifying
+      # an empty set disables root CA pinning, which can be unsafe. Each hash is specified
+      # as <type>:<value>, where the only currently supported type is "sha256". This is a hex-encoded
+      # SHA-256 hash of the Subject Public Key Info (SPKI) object in DER-encoded ASN.1.
+      #
+      # it could be obtained using the following command chain on the control-plane node:
+      #   openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \
+      #   openssl dgst -sha256 -hex | sed 's/^.* //'
+      #
+      # otherwise use "unsafeSkipCAVerification: true" but this can weaken the security of kubeadm
+      # since other nodes can impersonate the control-plane
+      caCertHashes:
+        - "sha256:{{ k8s_cluster_root_ca_hash }}"
+      unsafeSkipCAVerification: false
 
 k8s_cluster_pod_network:
   # Flannel CNI.

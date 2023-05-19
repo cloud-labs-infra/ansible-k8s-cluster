@@ -21,6 +21,12 @@
       ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
       changed_when: false
 
+- name: Converge
+  hosts: all
+  become: yes
+  become_method: su
+  gather_facts: false
+  pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
@@ -31,12 +37,6 @@
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
-
-- name: Converge
-  hosts: all
-  become: yes
-  become_method: su
-  gather_facts: false
   tasks:
     - name: "Include cloud_labs.k8s_cluster"
       ansible.builtin.include_role:

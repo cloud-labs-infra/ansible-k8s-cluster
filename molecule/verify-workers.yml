@@ -1,0 +1,28 @@
+---
+
+- name: Debug workers node
+  delegate_to: "{{ groups['control_plane'][0] }}"
+  block:
+    - name: Get kubectl get node {{ ansible_hostname }}
+      ansible.builtin.shell: |
+        kubectl get node {{ ansible_hostname }}
+      register: kubectl_show
+      changed_when: false
+
+    - name: Show kubectl output for {{ ansible_hostname }}
+      ansible.builtin.debug:
+        var: kubectl_show
+
+- name: Check workers nodes are ready
+  delegate_to: "{{ groups['control_plane'][0] }}"
+  block:
+    - name: Get kubectl response
+      ansible.builtin.shell: |
+        kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
+      register: kubectl_response
+      changed_when: false
+
+    - name: Check if worker is ready
+      ansible.builtin.assert:
+        that: kubectl_response.stdout == "True"
+        fail_msg: kubectl_response.stdout
