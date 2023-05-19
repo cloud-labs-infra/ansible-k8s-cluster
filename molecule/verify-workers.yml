@@ -21,9 +21,6 @@
         kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
       register: kubectl_response
       changed_when: false
-      until: kubectl_response.stdout == "True"
-      retries: 48
-      delay: 5
 
     - name: Check if worker is ready
       ansible.builtin.assert:

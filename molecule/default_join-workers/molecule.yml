@@ -26,6 +26,11 @@ platforms:
     hostname: k8s-worker-01
     groups:
       - workers
+  - <<: *default_platform
+    name: k8s-worker-02
+    hostname: k8s-worker-02
+    groups:
+      - workers
 provisioner:
   name: ansible
   inventory:
