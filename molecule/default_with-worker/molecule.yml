@@ -33,6 +33,8 @@ provisioner:
       k8s-control-plane-01:
         k8s_cluster_node_type: "master"
         k8s_cluster_initial_master: true
+      k8s-worker-01:
+        k8s_cluster_node_type: "worker"
 scenario:
   test_sequence:
     - dependency
