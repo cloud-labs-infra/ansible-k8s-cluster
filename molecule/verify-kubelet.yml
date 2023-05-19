@@ -10,7 +10,7 @@
       ansible.builtin.debug:
         var: services_state.ansible_facts.services['kubelet.service']
 
-    - name: Check if etcd service is in running state
+    - name: Check if kubelet service is in running state
       ansible.builtin.assert:
         that: services_state.ansible_facts.services['kubelet.service'].state == "running"
       ignore_errors: yes

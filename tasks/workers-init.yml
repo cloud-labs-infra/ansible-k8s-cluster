@@ -1,8 +1,0 @@
-# tasks/workers-init.yml
----
-
-- name: Join worker to control plane
-  ansible.builtin.shell: >
-    {{ kubernetes_join_command }}
-    --ignore-preflight-errors={{ k8s_cluster_join_ignore_preflight_errors }}
-    > /tmp/join.log 2>&1

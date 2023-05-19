@@ -5,27 +5,54 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
-    name: "Run tests"
+  run-linters:
+    name: "Run linters"
     runs-on: ubuntu-20.04
     steps:
-    # cgroup version shouldn't be cgroup2fs
-    - name: Debug
-      run: |
-        env
-        [[ $(stat -c %T -f /sys/fs/cgroup) != "cgroup2fs" ]] 
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install requirements
+        run: |
+          make init
+      - name: Run linters
+        run: |
+          make lint
 
-    - name: Set Up Git repository
-      uses: actions/checkout@v3
+  prepare-matrix:
+    needs: run-linters
+    name: "Prepare matrix"
+    runs-on: ubuntu-20.04
+    outputs:
+      molecule-scenarios: ${{ steps.set-matrix.outputs.molecule-scenarios }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: List molecule scenarios
+        id: set-matrix
+        run: |
+          MOLECULE_SCENARIOS=$(find molecule/ -mindepth 1 -type d -exec basename {} \; | jq -ncR '[inputs]')
+          echo "molecule-scenarios=${MOLECULE_SCENARIOS}" >> $GITHUB_OUTPUT
 
-    - name: Set Up Python
-      uses: actions/setup-python@v2
+  tests:
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: ${{ fromJson(needs.prepare-matrix.outputs.molecule-scenarios) }}
+    name: "Run tests"
+    # cgroup version shouldn't be cgroup2fs, check:
+    # stat -c %T -f /sys/fs/cgroup
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Install requirements
-      run: |
-        make init
-
-    - name: Run tests
-      run: |
-        make test
-#        make lint
+      - name: Install requirements
+        run: |
+          make init
+      - name: Run tests
+        run: |
+          molecule test --scenario-name "${{ matrix.scenario }}"
