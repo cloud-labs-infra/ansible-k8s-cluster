@@ -1,0 +1,41 @@
+#
+---
+
+- name: Get kubeadm token to join other nodes
+  ansible.builtin.shell: |
+    kubeadm token create --ttl 24h
+  register: kubernetes_join_command_result
+  changed_when: False
+
+- name: Set kubeadm token variable for other nodes
+  ansible.builtin.set_fact:
+    k8s_cluster_join_token: "{{ kubernetes_join_command_result.stdout }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
+
+- name: Get root CA certificate hash
+  ansible.builtin.shell: |
+    set -o pipefail \
+    && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
+      | openssl rsa -pubin -outform der 2>/dev/null \
+      | openssl dgst -sha256 -hex \
+      | sed 's/^.* //'
+  args:
+    executable: /usr/bin/bash
+  register: get_root_ca_command_result
+  changed_when: False
+
+- name: Set root CA certificate hash variable for other nodes
+  ansible.builtin.set_fact:
+    k8s_cluster_root_ca_hash: "{{ get_root_ca_command_result.stdout }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
+
+- name: Set ip address of initial API server for other nodes
+  ansible.builtin.set_fact:
+    k8s_cluster_api_server_ip: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"

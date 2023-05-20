@@ -1,77 +1,47 @@
 # tasks/init-control-plane.yml
 ---
 
-- name: Init cluster
-  when: services_state.ansible_facts.services['kubelet.service'].state != "running"
-  block:
-    - name: Run kubeadm init
-      ansible.builtin.shell: |
-        kubeadm init \
-          --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-init-config.yml \
-            > /tmp/kubeadm.log 2>&1
-      register: command_result
-      failed_when: command_result.rc != 0
-      ignore_errors: true
-      changed_when: False
+- name: Copy initial kubeadm template
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0640
+  loop: ["kubeadm-init-config.yml"]
 
-    - name: Query logs
-      ansible.builtin.shell: |
-        cat /tmp/kubeadm.log
-      args:
-        executable: /bin/bash
-      register: cat_show
-      changed_when: False
+- name: Pre pull required images
+  ansible.builtin.shell: |
+    kubeadm config images pull
+  changed_when: False
 
-    - name: Show kubeadm logs
-      ansible.builtin.debug:
-        var: cat_show
+- name: Run kubeadm init
+  ansible.builtin.shell: |
+    kubeadm init \
+      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-init-config.yml \
+        > /tmp/kubeadm.log 2>&1
+  register: command_result
+  failed_when: command_result.rc != 0
+  ignore_errors: true
+  changed_when: False
 
-    # https://github.com/flannel-io/flannel
-    - name: Configure Flannel networking
-      ansible.builtin.shell: |
-        kubectl apply \
-          -f {{ k8s_cluster_flannel_apply }} \
-          --kubeconfig=/etc/kubernetes/admin.conf \
-            > /tmp/flannel.log 2>&1
-      changed_when: False
+- name: Query logs
+  ansible.builtin.shell: |
+    cat /tmp/kubeadm.log
+  args:
+    executable: /bin/bash
+  register: cat_show
+  changed_when: False
 
-- name: Post init tasks
-  block:
-    - name: Get kubeadm token to join other nodes
-      ansible.builtin.shell: |
-        kubeadm token create --ttl 24h
-      register: kubernetes_join_command_result
-      changed_when: False
+- name: Show kubeadm logs
+  ansible.builtin.debug:
+    var: cat_show
 
-    - name: Set kubeadm token variable for other nodes
-      ansible.builtin.set_fact:
-        k8s_cluster_join_token: "{{ kubernetes_join_command_result.stdout }}"
-      delegate_to: "{{ item }}"
-      delegate_facts: true
-      loop: "{{ ansible_play_hosts }}"
-
-    - name: Get root CA certificate hash
-      ansible.builtin.shell: |
-        set -o pipefail \
-        && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
-          | openssl rsa -pubin -outform der 2>/dev/null \
-          | openssl dgst -sha256 -hex \
-          | sed 's/^.* //'
-      args:
-        executable: /usr/bin/bash
-      register: get_root_ca_command_result
-      changed_when: False
-
-    - name: Set root CA certificate hash variable for other nodes
-      ansible.builtin.set_fact:
-        k8s_cluster_root_ca_hash: "{{ get_root_ca_command_result.stdout }}"
-      delegate_to: "{{ item }}"
-      delegate_facts: true
-      loop: "{{ ansible_play_hosts }}"
-
-    - name: Set API server ip address
-      ansible.builtin.set_fact:
-        k8s_cluster_api_server_ip: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-      delegate_to: "{{ item }}"
-      delegate_facts: true
-      loop: "{{ ansible_play_hosts }}"
+# https://github.com/flannel-io/flannel
+- name: Configure Flannel networking
+  ansible.builtin.shell: |
+    kubectl apply \
+      -f {{ k8s_cluster_flannel_apply }} \
+      --kubeconfig=/etc/kubernetes/admin.conf \
+        > /tmp/flannel.log 2>&1
+  changed_when: False

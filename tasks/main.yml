@@ -13,4 +13,6 @@
 
 - name: Join workers
   ansible.builtin.include_tasks: join-workers.yml
-  when: k8s_cluster_node_type == 'worker'
+  when:
+    - k8s_cluster_node_type == 'worker'
+    - services_state.ansible_facts.services['kubelet.service'].state != "running"
