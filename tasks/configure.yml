@@ -41,6 +41,16 @@
     - kubeadm
     - kubectl
 
+- name: Check kubelet status
+  block:
+    - name: Collect facts about systemd services
+      ansible.builtin.service_facts:
+      register: services_state
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: services_state.ansible_facts.services['kubelet.service']
+
 # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 - name: Load required kernel modules on boot
   ansible.builtin.copy:
