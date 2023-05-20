@@ -32,6 +32,7 @@ k8s_cluster_cluster_configuration:
   networking:
     podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
   kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
+  controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
 
 # https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/
 k8s_cluster_kubelet_configuration:
@@ -75,6 +76,10 @@ k8s_cluster_join_configuration:
       caCertHashes:
         - "sha256:{{ k8s_cluster_root_ca_hash }}"
       unsafeSkipCAVerification: false
+  controlPlane:
+    localAPIEndpoint:
+      advertiseAddress: "{{ k8s_cluster_local_api }}"
+      bindPort: 6443
 
 k8s_cluster_pod_network:
   # Flannel CNI.
