@@ -1,41 +1,53 @@
 # tasks/init-control-plane.yml
 ---
 
-- name: Copy initial kubeadm template
-  ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0640
-  loop: ["kubeadm-init-config.yml"]
+- name: Initialize cluster
+  block:
+    - name: Copy initial kubeadm template
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
+        owner: root
+        group: root
+        mode: 0640
+      loop: ["kubeadm-init-config.yml"]
 
-- name: Pre pull required images
-  ansible.builtin.shell: |
-    kubeadm config images pull
-  changed_when: False
+    - name: Pre pull required images
+      ansible.builtin.shell: |
+        kubeadm config images pull
+      changed_when: False
 
-- name: Run kubeadm init
-  ansible.builtin.shell: |
-    kubeadm init \
-      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-init-config.yml \
-        > /tmp/kubeadm.log 2>&1
-  register: command_result
-  failed_when: command_result.rc != 0
-  ignore_errors: true
-  changed_when: False
+    - name: Run kubeadm init
+      ansible.builtin.shell: |
+        kubeadm init \
+          --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-init-config.yml \
+            > /tmp/kubeadm.log 2>&1
+      register: command_result
+      failed_when: command_result.rc != 0
+      ignore_errors: true
+      changed_when: False
 
 - name: Query logs
-  ansible.builtin.shell: |
-    cat /tmp/kubeadm.log
-  args:
-    executable: /bin/bash
-  register: cat_show
-  changed_when: False
+  when: command_result.rc != 0
+  block:
+    - name: Fetch log output
+      ansible.builtin.shell: |
+        cat /tmp/kubeadm.log
+      args:
+        executable: /bin/bash
+      register: cat_show
+      changed_when: False
 
-- name: Show kubeadm logs
-  ansible.builtin.debug:
-    var: cat_show
+    - name: Show kubeadm logs
+      ansible.builtin.debug:
+        var: cat_show
+
+    - name: Raise error because kubeadm init has failed
+      ansible.builtin.fail:
+        msg: Kubeadm init failed
+
+    - name: Stop play for all hosts because cluster is not initialized
+      ansible.builtin.meta: end_play
 
 # https://github.com/flannel-io/flannel
 - name: Configure Flannel networking
