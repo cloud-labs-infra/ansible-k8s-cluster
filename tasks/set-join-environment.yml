@@ -1,4 +1,4 @@
-#
+# tasks/set-join-environment.yml
 ---
 
 - name: Get kubeadm token to join other nodes
@@ -17,7 +17,7 @@
 - name: Get root CA certificate hash
   ansible.builtin.shell: |
     set -o pipefail \
-    && openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
+    && openssl x509 -pubkey -in {{ k8s_cluster_kubelet_config_root_dir }}/pki/ca.crt \
       | openssl rsa -pubin -outform der 2>/dev/null \
       | openssl dgst -sha256 -hex \
       | sed 's/^.* //'
@@ -36,6 +36,13 @@
 - name: Set ip address of initial API server for other nodes
   ansible.builtin.set_fact:
     k8s_cluster_api_server_ip: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
+
+- name: Set hostname of initial master for other nodes
+  ansible.builtin.set_fact:
+    k8s_cluster_init_main_node_hostname: "{{ inventory_hostname }}"
   delegate_to: "{{ item }}"
   delegate_facts: true
   loop: "{{ ansible_play_hosts }}"
