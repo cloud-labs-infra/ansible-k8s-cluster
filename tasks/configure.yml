@@ -2,44 +2,46 @@
 ---
 
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-- name: Install prerequisites
-  ansible.builtin.apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-    state: present
-    update_cache: yes
+- name: Install kubeadm, kubelet and kubectl
+  block:
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: yes
 
-- name: Add Kubernetes apt key
-  ansible.builtin.apt_key:
-    url: "{{ k8s_cluster_apt_key_url }}"
-    keyring: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+    - name: Add Kubernetes apt key
+      ansible.builtin.apt_key:
+        url: "{{ k8s_cluster_apt_key_url }}"
+        keyring: /usr/share/keyrings/kubernetes-archive-keyring.gpg
 
-- name: Add Kubernetes apt repository
-  ansible.builtin.apt_repository:
-    repo: "{{ k8s_cluster_apt_repository }}"
-    state: present
-    #    filename: kubernetes
-    update_cache: true
+    - name: Add Kubernetes apt repository
+      ansible.builtin.apt_repository:
+        repo: "{{ k8s_cluster_apt_repository }}"
+        state: present
+        #    filename: kubernetes
+        update_cache: true
 
-- name: Install Kubernetes components
-  ansible.builtin.apt:
-    name:
-      - kubelet={{ k8s_cluster_kubelet_version }}
-      - kubeadm={{ k8s_cluster_kubeadm_version }}
-      - kubectl={{ k8s_cluster_kubectl_version }}
-    allow_unauthenticated: yes
-    update_cache: yes
+    - name: Install Kubernetes components
+      ansible.builtin.apt:
+        name:
+          - kubelet={{ k8s_cluster_kubelet_version }}
+          - kubeadm={{ k8s_cluster_kubeadm_version }}
+          - kubectl={{ k8s_cluster_kubectl_version }}
+        allow_unauthenticated: yes
+        update_cache: yes
 
-- name: Pin versions
-  ansible.builtin.dpkg_selections:
-    selection: hold
-    name: "{{ item }}"
-  loop:
-    - kubelet
-    - kubeadm
-    - kubectl
+    - name: Pin versions
+      ansible.builtin.dpkg_selections:
+        selection: hold
+        name: "{{ item }}"
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
 
 - name: Check kubelet status
   block:
@@ -52,51 +54,53 @@
         var: services_state.ansible_facts.services['kubelet.service']
 
 # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
-- name: Load required kernel modules on boot
-  ansible.builtin.copy:
-    src: modules-load.d_k8s.conf
-    dest: "/etc/modules-load.d/k8s.conf"
-    owner: root
-    group: root
-    mode: 0640
+- name: Configure system
+  block:
+    - name: Load required kernel modules on boot
+      ansible.builtin.copy:
+        src: modules-load.d_k8s.conf
+        dest: "/etc/modules-load.d/k8s.conf"
+        owner: root
+        group: root
+        mode: 0640
 
-- name: Load kernel modules
-  community.general.modprobe:
-    name: "{{ item }}"
-  loop:
-    - overlay
-    - br_netfilter
+    - name: Load kernel modules
+      community.general.modprobe:
+        name: "{{ item }}"
+      loop:
+        - overlay
+        - br_netfilter
 
-- name: Configure sysctl
-  ansible.posix.sysctl:
-    name: "{{ item }}"
-    value: '1'
-    sysctl_file: /etc/sysctl.d/k8s.conf
-    sysctl_set: yes
-    state: present
-    reload: yes
-  loop:
-    - net.bridge.bridge-nf-call-iptables
-    - net.bridge.bridge-nf-call-ip6tables
-    - net.ipv4.ip_forward
+    - name: Configure sysctl
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        value: '1'
+        sysctl_file: /etc/sysctl.d/k8s.conf
+        sysctl_set: yes
+        state: present
+        reload: yes
+      loop:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
+        - net.ipv4.ip_forward
 
-- name: Make containerd defautl to crictl
-  ansible.builtin.copy:
-    content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
-    dest: /etc/crictl.yaml
-    owner: root
-    group: root
-    mode: 0640
+    - name: Make containerd defautl to crictl
+      ansible.builtin.copy:
+        content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
+        dest: /etc/crictl.yaml
+        owner: root
+        group: root
+        mode: 0640
 
-- name: Create kubelet root directory
-  ansible.builtin.file:
-    path: "{{ k8s_cluster_kubelet_config_root_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
+    - name: Create kubelet root directory
+      ansible.builtin.file:
+        path: "{{ k8s_cluster_kubelet_config_root_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
 
-- name: Get hostname of initial master node
+- name: Set hostname of initial master for other nodes
   ansible.builtin.set_fact:
     k8s_cluster_init_main_node_hostname: "{{ inventory_hostname }}"
   when: k8s_cluster_initial_master | bool
