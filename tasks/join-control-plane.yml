@@ -13,6 +13,14 @@
       ansible.builtin.set_fact:
         k8s_cluster_local_api: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
 
+    - name: Set hostname of initial master for other nodes
+      ansible.builtin.set_fact:
+        k8s_cluster_join_control_plane: |
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "{{ k8s_cluster_local_api }}"
+              bindPort: 6443
+
     - name: Copy initial kubeadm template
       ansible.builtin.template:
         src: "{{ item }}.j2"

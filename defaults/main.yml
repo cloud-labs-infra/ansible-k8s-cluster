@@ -12,6 +12,7 @@ k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 
 k8s_cluster_node_type: worker
 k8s_cluster_initial_master: false
+k8s_cluster_join_control_plane: null
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-InitConfiguration
 k8s_cluster_init_configuration:
@@ -78,10 +79,7 @@ k8s_cluster_join_configuration:
       caCertHashes:
         - "sha256:{{ k8s_cluster_root_ca_hash }}"
       unsafeSkipCAVerification: false
-  controlPlane:
-    localAPIEndpoint:
-      advertiseAddress: "{{ k8s_cluster_local_api }}"
-      bindPort: 6443
+  controlPlane: "{{ k8s_cluster_join_controlPlane }}"
 
 k8s_cluster_pod_network:
   # Flannel CNI.
