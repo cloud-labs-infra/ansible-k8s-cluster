@@ -1,45 +1,76 @@
 # tasks/join-control-plane.yml
 ---
 
-- name: Create control plane configuration and certs directory
-  ansible.builtin.file:
-    path: "{{ k8s_cluster_kubelet_config_root_dir }}/pki/etcd"
-    state: directory
+- name: Prepare additional master
+  block:
+    - name: Create control plane configuration and certs directory
+      ansible.builtin.file:
+        path: "{{ k8s_cluster_kubelet_config_root_dir }}/pki/etcd"
+        state: directory
 
-- name: Set local api for every additional control plane instances
-  ansible.builtin.set_fact:
-    k8s_cluster_local_api: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+    - name: Set local api for every additional control plane instances
+      ansible.builtin.set_fact:
+        k8s_cluster_local_api: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
 
-- name: Copy initial kubeadm template
-  ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0640
-  loop: ["kubeadm-join-config.yml"]
+    - name: Copy initial kubeadm template
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "{{ k8s_cluster_kubelet_config_root_dir }}/{{ item }}"
+        owner: root
+        group: root
+        mode: 0640
+      loop: ["kubeadm-join-config.yml"]
 
-- name: Gather control plane configurations and certs
-  ansible.builtin.slurp:
-    src: "{{ item }}"
-  register: control_plane_files
-  with_items:
-    - /etc/kubernetes/pki/ca.crt
-    - /etc/kubernetes/pki/ca.key
-    - /etc/kubernetes/pki/sa.key
-    - /etc/kubernetes/pki/sa.pub
-    - /etc/kubernetes/pki/front-proxy-ca.crt
-    - /etc/kubernetes/pki/front-proxy-ca.key
-    - /etc/kubernetes/pki/etcd/ca.crt
-    - /etc/kubernetes/pki/etcd/ca.key
-    - /etc/kubernetes/admin.conf
-  delegate_to: "{{ k8s_cluster_init_main_node_hostname }}"
+    - name: Gather control plane configurations and certs
+      ansible.builtin.slurp:
+        src: "{{ item }}"
+      register: control_plane_files
+      with_items:
+        - /etc/kubernetes/pki/ca.crt
+        - /etc/kubernetes/pki/ca.key
+        - /etc/kubernetes/pki/sa.key
+        - /etc/kubernetes/pki/sa.pub
+        - /etc/kubernetes/pki/front-proxy-ca.crt
+        - /etc/kubernetes/pki/front-proxy-ca.key
+        - /etc/kubernetes/pki/etcd/ca.crt
+        - /etc/kubernetes/pki/etcd/ca.key
+        - /etc/kubernetes/admin.conf
+      delegate_to: "{{ k8s_cluster_init_main_node_hostname }}"
 
-- name: Write control plane configuration and certs
-  ansible.builtin.copy:
-    dest: "{{ item.item }}"
-    content: "{{ item.content | b64decode }}"
-    mode: 0600
-  with_items: "{{ control_plane_files.results }}"
-  loop_control:
-    label: "{{ item.item }}"
+    - name: Write control plane configuration and certs
+      ansible.builtin.copy:
+        dest: "{{ item.item }}"
+        content: "{{ item.content | b64decode }}"
+        mode: 0600
+      with_items: "{{ control_plane_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+- name: Join masters to cluster
+  ansible.builtin.shell: |
+    kubeadm join \
+      --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-join-config.yml \
+        > /tmp/join.log 2>&1
+  register: command_result
+  failed_when: command_result.rc != 0
+  ignore_errors: true
+  changed_when: False
+
+- name: Query logs
+  when: command_result.rc != 0
+  block:
+    - name: Fetch log output
+      ansible.builtin.shell: |
+        cat /tmp/join.log
+      args:
+        executable: /bin/bash
+      register: cat_show
+      changed_when: False
+
+    - name: Show kubeadm logs
+      ansible.builtin.debug:
+        var: cat_show
+
+    - name: Raise error because kubeadm init has failed
+      ansible.builtin.fail:
+        msg: Kubeadm init failed
