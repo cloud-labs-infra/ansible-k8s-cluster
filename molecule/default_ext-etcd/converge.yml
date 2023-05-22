@@ -49,10 +49,6 @@
         podSubnet: 10.244.0.0/16
         dnsDomain: cluster.local
       kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-      # In a cluster with more than one control plane instances, this field should be assigned
-      # the address of the external load balancer in front of the control plane instances
-      controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-      clusterName: 'my-shiny-cluster'
   roles:
     - { role: andrewrothstein.etcd }
     - { role: ansible-etcd-cluster }

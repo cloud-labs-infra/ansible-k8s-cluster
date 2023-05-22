@@ -38,7 +38,9 @@ k8s_cluster_cluster_configuration:
   networking:
     podSubnet: "{{ k8s_cluster_pod_network.cidr }}"
   kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-  controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+  # In a cluster with more than one control plane instances, this field should be assigned
+  # the address of the external load balancer in front of the control plane instances
+  controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
 
 # https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/
 k8s_cluster_kubelet_configuration:
