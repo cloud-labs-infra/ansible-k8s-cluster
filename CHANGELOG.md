@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/compare/v1.2.0...v1.3.0) (2023-05-22)
+
+
+### Features
+
+* switch preflight check behaviour [#25](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/issues/25) ([#26](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/issues/26)) ([0d2aea3](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/commit/0d2aea3d8ccb8d38556e673d5d4042f55d1fe382))
+
 ## [1.2.0](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/compare/v1.1.0...v1.2.0) (2023-05-19)
 
 
