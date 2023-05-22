@@ -81,7 +81,7 @@ k8s_cluster_join_configuration:
       caCertHashes:
         - "sha256:{{ k8s_cluster_root_ca_hash }}"
       unsafeSkipCAVerification: false
-  controlPlane: "{{ k8s_cluster_join_controlPlane }}"
+  controlPlane: "{{ k8s_cluster_join_control_plane }}"
 
 k8s_cluster_pod_network:
   # Flannel CNI.
