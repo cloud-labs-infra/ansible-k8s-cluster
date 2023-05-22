@@ -17,7 +17,7 @@
         dest: "{{ item.item }}"
         content: "{{ item.content | b64decode }}"
         mode: 0600
-      with_items: "{{ control_plane_files.results }}"
+      loop: "{{ k8s_cluster_control_plane_files.results }}"
       loop_control:
         label: "{{ item.item }}"
 
@@ -37,9 +37,10 @@
         > /tmp/join.log 2>&1
   changed_when: false
 
-- name: Check workers until ready
+- name: Check nodes until ready
   ansible.builtin.shell: |
-    kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
+    kubectl get node {{ ansible_hostname }} \
+      --kubeconfig=/etc/kubernetes/admin.conf -o json | jq -Mr '.status.conditions[4].status'
   register: kubectl_response
   changed_when: false
   delegate_to: "{{ k8s_cluster_init_main_node_hostname }}"

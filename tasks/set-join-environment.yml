@@ -51,7 +51,7 @@
   ansible.builtin.slurp:
     src: "{{ item }}"
   register: control_plane_files
-  with_items:
+  loop:
     - /etc/kubernetes/pki/ca.crt
     - /etc/kubernetes/pki/ca.key
     - /etc/kubernetes/pki/sa.key
@@ -61,3 +61,10 @@
     - /etc/kubernetes/pki/etcd/ca.crt
     - /etc/kubernetes/pki/etcd/ca.key
     - /etc/kubernetes/admin.conf
+
+- name: Set control_plane_files of initial master for other nodes
+  ansible.builtin.set_fact:
+    k8s_cluster_control_plane_files: "{{ control_plane_files }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
