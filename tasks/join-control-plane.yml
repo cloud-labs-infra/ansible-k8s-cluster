@@ -7,6 +7,7 @@
       ansible.builtin.file:
         path: "{{ k8s_cluster_kubelet_config_root_dir }}/pki/etcd"
         state: directory
+        mode: 0640
 
     - name: Set local api for every additional control plane instances
       ansible.builtin.set_fact:
