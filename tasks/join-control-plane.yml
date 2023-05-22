@@ -1,0 +1,22 @@
+# tasks/join-control-plane.yml
+---
+
+- name: Create control plane configuration and certs directory
+  ansible.builtin.file:
+    path: "{{ k8s_cluster_kubelet_config_root_dir }}/pki/etcd"
+    state: directory
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Write control plane configuration and certs
+  ansible.builtin.copy:
+    dest: "{{ item.item }}"
+    content: "{{ item.content | b64decode }}"
+    mode: 0600
+  loop: "{{ k8s_cluster_control_plane_files.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Join other control-plane nodes
+  ansible.builtin.include_tasks: join-node.yml
