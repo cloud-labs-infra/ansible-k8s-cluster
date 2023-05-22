@@ -1,5 +1,25 @@
-# tasks/join-workers.yml
+# tasks/join-node.yml
 ---
+
+- name: Prepare additional master
+  when: k8s_cluster_node_type == 'master'
+  block:
+    - name: Create control plane configuration and certs directory
+      ansible.builtin.file:
+        path: "{{ k8s_cluster_kubelet_config_root_dir }}/pki/etcd"
+        state: directory
+        owner: root
+        group: root
+        mode: 0640
+
+    - name: Write control plane configuration and certs
+      ansible.builtin.copy:
+        dest: "{{ item.item }}"
+        content: "{{ item.content | b64decode }}"
+        mode: 0600
+      with_items: "{{ control_plane_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"
 
 - name: Copy initial kubeadm template
   ansible.builtin.template:
@@ -10,7 +30,7 @@
     mode: 0640
   loop: ["kubeadm-join-config.yml"]
 
-- name: Join workers to cluster
+- name: Join node to cluster
   ansible.builtin.shell: |
     kubeadm join \
       --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-join-config.yml \

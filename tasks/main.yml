@@ -12,7 +12,7 @@
   when: k8s_cluster_node_type == 'master'
 
 - name: Join workers
-  ansible.builtin.include_tasks: join-workers.yml
+  ansible.builtin.include_tasks: join-node.yml
   when:
     - k8s_cluster_node_type == 'worker'
     - services_state.ansible_facts.services['kubelet.service'].state != "running"
