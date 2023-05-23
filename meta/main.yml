@@ -16,7 +16,6 @@ galaxy_info:
   galaxy_tags:
     - kubernetes
     - k8s
-    - control-plane
     - orchestration
 
 dependencies: []
