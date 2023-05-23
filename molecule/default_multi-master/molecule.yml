@@ -8,7 +8,8 @@ platforms:
   - &default_platform
     name: k8s-control-plane-01
     hostname: k8s-control-plane-01
-    image: kindest/node:v1.26.3
+    #    image: kindest/node:v1.26.3
+    image: k8s_experimental_01:python
     groups:
       - control_plane
     volumes:
@@ -32,26 +33,9 @@ provisioner:
   inventory:
     host_vars:
       k8s-control-plane-01:
-        k8s_cluster_node_type: "master"
         k8s_cluster_initial_master: true
-      k8s-control-plane-02:
-        k8s_cluster_node_type: "master"
-        k8s_cluster_join_configuration:
-          nodeRegistration:
-            ignorePreflightErrors:
-              - SystemVerification
-          discovery:
-            bootstrapToken:
-              token: "{{ k8s_cluster_join_token }}"
-              apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
-              caCertHashes:
-                - "sha256:{{ k8s_cluster_root_ca_hash }}"
-              unsafeSkipCAVerification: false
-          controlPlane:
-            localAPIEndpoint:
-              advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-              bindPort: 6443
-      k8s-control-plane-03:
+    group_vars:
+      control_plane:
         k8s_cluster_node_type: "master"
         k8s_cluster_join_configuration:
           nodeRegistration:
