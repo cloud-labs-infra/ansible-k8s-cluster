@@ -2,12 +2,10 @@
 
 galaxy_info:
   role_name: k8s_cluster
-  author: cloud_labs
-  description: Ansible role for managing and configuring Kubernetes control-plane cluster
+  author: cloudlabsinfra
+  description: Ansible role for configuring Kubernetes cluster
   company: Cloud Labs Shared Infrastructure
-
   license: Apache-2.0
-
   min_ansible_version: "2.10"
 
   platforms:
@@ -15,6 +13,10 @@ galaxy_info:
       versions:
         - focal  # 20.04
 
-  galaxy_tags: []
+  galaxy_tags:
+    - kubernetes
+    - k8s
+    - control-plane
+    - orchestration
 
 dependencies: []
