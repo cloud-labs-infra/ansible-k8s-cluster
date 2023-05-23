@@ -1,4 +1,4 @@
-# tasks/join-workers.yml
+# tasks/join-node.yml
 ---
 
 - name: Copy initial kubeadm template
@@ -10,16 +10,17 @@
     mode: 0640
   loop: ["kubeadm-join-config.yml"]
 
-- name: Join workers to cluster
+- name: Join node to cluster
   ansible.builtin.shell: |
     kubeadm join \
       --config={{ k8s_cluster_kubelet_config_root_dir }}/kubeadm-join-config.yml \
         > /tmp/join.log 2>&1
   changed_when: false
 
-- name: Check workers until ready
+- name: Check nodes until ready
   ansible.builtin.shell: |
-    kubectl get node {{ ansible_hostname }} -o json | jq -Mr '.status.conditions[4].status'
+    kubectl get node {{ ansible_hostname }} \
+      --kubeconfig=/etc/kubernetes/admin.conf -o json | jq -Mr '.status.conditions[4].status'
   register: kubectl_response
   changed_when: false
   delegate_to: "{{ k8s_cluster_init_main_node_hostname }}"

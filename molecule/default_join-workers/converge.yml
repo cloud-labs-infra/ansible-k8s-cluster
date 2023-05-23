@@ -38,6 +38,6 @@
     - name: Collect facts
       ansible.builtin.setup:
   tasks:
-    - name: "Include cloud_labs.k8s_cluster"
+    - name: "Include cloudlabsinfra.k8s_cluster"
       ansible.builtin.include_role:
-        name: "cloud_labs.k8s_cluster"
+        name: "cloudlabsinfra.k8s_cluster"

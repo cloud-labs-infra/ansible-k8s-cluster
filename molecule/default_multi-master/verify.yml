@@ -1,0 +1,9 @@
+---
+
+- name: Verify control plane
+  hosts: control_plane
+  gather_facts: false
+  tasks:
+    - name: Include verify common
+      ansible.builtin.include_tasks:
+        file: ../verify-common.yml

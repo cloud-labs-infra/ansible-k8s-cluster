@@ -38,7 +38,7 @@
   become_method: su
   gather_facts: true
   vars:
-    # cloud_labs.k8s_cluster role related variables
+    # cloudlabsinfra.k8s_cluster role related variables
     k8s_cluster_kubernetes_version: 1.26.0
     k8s_cluster_cluster_configuration:
       etcd:
@@ -49,10 +49,6 @@
         podSubnet: 10.244.0.0/16
         dnsDomain: cluster.local
       kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-      # In a cluster with more than one control plane instances, this field should be assigned
-      # the address of the external load balancer in front of the control plane instances
-      controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-      clusterName: 'my-shiny-cluster'
   roles:
     - { role: andrewrothstein.etcd }
     - { role: ansible-etcd-cluster }
@@ -60,6 +56,6 @@
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
 
-    - name: "Include cloud_labs.k8s_cluster"
+    - name: "Include cloudlabsinfra.k8s_cluster"
       ansible.builtin.include_role:
-        name: "cloud_labs.k8s_cluster"
+        name: "cloudlabsinfra.k8s_cluster"
