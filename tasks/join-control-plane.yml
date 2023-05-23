@@ -11,14 +11,14 @@
 
 - name: Write control plane configuration and certs
   ansible.builtin.copy:
-    dest: "{{ item.item }}"
+    dest: "{{ item.item.item }}"  # :)
     content: "{{ item.content | b64decode }}"
     owner: root
     group: root
     mode: 0600
-  loop: "{{ control_plane_files.results }}"
+  loop: "{{ k8s_cluster_control_plane_files.results }}"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item.item.item }}"
 
 - name: Join other control-plane nodes
   ansible.builtin.include_tasks: join-node.yml
