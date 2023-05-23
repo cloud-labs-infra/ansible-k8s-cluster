@@ -16,7 +16,7 @@
     owner: root
     group: root
     mode: 0600
-  loop: "{{ k8s_cluster_control_plane_files.results }}"
+  loop: "{{ control_plane_files.results }}"
   loop_control:
     label: "{{ item.item }}"
 
