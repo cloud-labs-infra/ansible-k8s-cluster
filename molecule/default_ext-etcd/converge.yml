@@ -38,7 +38,7 @@
   become_method: su
   gather_facts: true
   vars:
-    # cloud_labs.k8s_cluster role related variables
+    # cloudlabsinfra.k8s_cluster role related variables
     k8s_cluster_kubernetes_version: 1.26.0
     k8s_cluster_cluster_configuration:
       etcd:
@@ -56,6 +56,6 @@
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
 
-    - name: "Include cloud_labs.k8s_cluster"
+    - name: "Include cloudlabsinfra.k8s_cluster"
       ansible.builtin.include_role:
-        name: "cloud_labs.k8s_cluster"
+        name: "cloudlabsinfra.k8s_cluster"
