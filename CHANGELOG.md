@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.3.0...v1.4.0) (2023-05-23)
+
+
+### Features
+
+* join masters ([#27](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/27)) ([33f148e](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/33f148e2cc20f666018ce330a30a292ca4b7af95))
+
 ## [1.3.0](https://github.com/cloud-labs-infra/ansible-role-k8s-cluster/compare/v1.2.0...v1.3.0) (2023-05-22)
 
 
