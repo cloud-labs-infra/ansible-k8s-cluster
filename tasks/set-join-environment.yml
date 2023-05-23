@@ -73,7 +73,7 @@
       ansible.builtin.slurp:
         src: "{{ item.item }}"
       register: control_plane_files
-      when: item.stat.exists == True
+      when: item.stat.exists | bool
       loop: "{{ certificate_files.results }}"
 
     - name: Set control_plane_files for other nodes
