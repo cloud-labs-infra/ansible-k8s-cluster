@@ -8,8 +8,7 @@ platforms:
   - &default_platform
     name: k8s-control-plane-01
     hostname: k8s-control-plane-01
-    #    image: kindest/node:v1.26.3
-    image: k8s_experimental_01:python
+    image: kindest/node:v1.26.3
     groups:
       - control_plane
     volumes:
