@@ -1,0 +1,13 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Include checks for control plane
+      ansible.builtin.include_tasks:
+        file: ../verify-common.yml
+
+    - name: Include kubelet checks
+      ansible.builtin.include_tasks:
+        file: ../verify-kubelet.yml
