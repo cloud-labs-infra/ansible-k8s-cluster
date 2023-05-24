@@ -3,22 +3,43 @@
 
 Ansible role for configuring Kubernetes cluster
 
+Role initialize Kubernetes cluster from the scratch, adds all defined control-plane and worker nodes. Key feature of the role is ability to define whatever option you want. It's achieved by using [kubeadm configuration](https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/).
+
 Requirements
 ------------
 
 - [container runtime](https://kubernetes.io/docs/setup/production-environment/container-runtimes/) should be installed (containerd is now the only supported container runtime)
 - `iproute2` package to collect network facts for Debian-like OS
+- provide all required certificates and appropriate etcd endpoint if you use external etcd cluster 
 
 Role Variables
 --------------
 
 All variables are defined as defaults in [defaults/main.yml](defaults/main.yml) and may be overrided.
 
+| Name           | Default value | Description                        |
+| -------------- | ------------- | -----------------------------------|
+|`k8s_cluster_kubelet_version`|1.26.0-00|kubelet version|
+|`k8s_cluster_kubeadm_version`|1.26.0-00|kubeadm version|
+|`k8s_cluster_kubectl_version`|1.26.0-00|kubectl version|
+|`k8s_cluster_apt_key_url`|https://packages.cloud.google.com/apt/doc/apt-key.gpg||
+|`k8s_cluster_apt_repository`|deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main||
+|`k8s_cluster_kubernetes_version`|1.26.0|Kubernetes version|
+|`k8s_cluster_kubelet_config_root_dir`|/etc/kubernetes|Default kubelet configuration directory|
+|`k8s_cluster_node_type`|worker|Default node type. If you need to init or join master, you should set this variable to `master`|
+|`k8s_cluster_initial_master`|false|This variable identifies initial master node to initialize cluster. It should be assigned to the only node with `true` value|
+|`k8s_cluster_init_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `InitConfiguration` of the cluster in pure yaml format except `apiVersion` and `kind` fields|
+|`k8s_cluster_cluster_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `ClusterConfiguration` of the cluster in pure yaml format except `apiVersion` and `kind` fields|
+|`k8s_cluster_kubelet_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `KubeletConfiguration` in pure yaml format except `apiVersion` and `kind` fields|
+|`k8s_cluster_kubeproxy_configuration`|""|Represent `KubeproxyConfiguration` in pure yaml format except `apiVersion` and `kind` fields|
+|`k8s_cluster_join_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `JoinConfiguration` of the cluster in pure yaml format except `apiVersion` and `kind` fields|
+|`k8s_cluster_pod_network`|See [defaults/main.yml](defaults/main.yml)|Defines pod network - cni and cidr. Will be removed or significantly changed in the future|
+|`k8s_cluster_flannel_apply`|https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml|Flannel configuration. Will be removed or significantly changed in the future|
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Use any role to install containerd
 
 Example Playbook
 ----------------
@@ -32,9 +53,9 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-BSD
+Apache 2.0
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Cloud Labs shared roles
