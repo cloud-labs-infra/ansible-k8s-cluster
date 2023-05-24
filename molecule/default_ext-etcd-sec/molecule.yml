@@ -24,11 +24,6 @@ platforms:
   - <<: *default_k8s_platform
     name: k8s-control-plane-02
     hostname: k8s-control-plane-02
-  - <<: *default_k8s_platform
-    name: k8s-worker-01
-    hostname: k8s-worker-01
-    groups:
-      - workers
   - &default_etcd_platform
     name: etcd-instance-01
     hostname: etcd-instance-01
@@ -44,6 +39,12 @@ platforms:
     pre_build_image: true
     override_command: false
     keep_volumes: false
+  - <<: *default_etcd_platform
+    name: etcd-instance-02
+    hostname: etcd-instance-02
+  - <<: *default_etcd_platform
+    name: etcd-instance-03
+    hostname: etcd-instance-03
 provisioner:
   name: ansible
   inventory:
