@@ -1,19 +1,19 @@
-# ansible-role-k8s-cluster
+# ansible-k8s-cluster
 =======
-Role Name
-=========
 
-A brief description of the role goes here.
+Ansible role for configuring Kubernetes cluster
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- [container runtime](https://kubernetes.io/docs/setup/production-environment/container-runtimes/) should be installed (containerd is now the only supported container runtime)
+- `iproute2` package to collect network facts for Debian-like OS
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+All variables are defined as defaults in [defaults/main.yml](defaults/main.yml) and may be overrided.
+
 
 Dependencies
 ------------
