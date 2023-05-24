@@ -22,3 +22,22 @@ jobs:
             @semantic-release/changelog@6.0.0
             @semantic-release/git@10.0.0
             conventional-changelog-conventionalcommits@4.6.3
+
+  release-galaxy:
+    needs: release
+    name: "Release to Galaxy"
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible
+        run: |
+          pip3 install ansible-core
+
+      - name: Trigger import to Galaxy
+        run: |
+          ansible-galaxy role import \
+            --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }} \
+            $(echo ${{ github.repository }} | sed 's/\// /')
