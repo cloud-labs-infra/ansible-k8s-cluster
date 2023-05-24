@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.4.1](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.0...v1.4.1) (2023-05-24)
+
+
+### Bug Fixes
+
+* add publishing to galaxy [#28](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/28) ([#29](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/29)) ([fe22f3f](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/fe22f3f40aeefd92cb9c7f6620ee8ecee21e7fd2))
+
 ## [1.4.0](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.3.0...v1.4.0) (2023-05-23)
 
 
