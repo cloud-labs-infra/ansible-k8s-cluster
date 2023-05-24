@@ -65,9 +65,9 @@
         - /etc/kubernetes/pki/sa.pub
         - /etc/kubernetes/pki/front-proxy-ca.crt
         - /etc/kubernetes/pki/front-proxy-ca.key
+        - /etc/kubernetes/admin.conf
         - /etc/kubernetes/pki/etcd/ca.crt
         - /etc/kubernetes/pki/etcd/ca.key
-        - /etc/kubernetes/admin.conf
 
     - name: Gather control plane configurations and certs
       ansible.builtin.slurp:
