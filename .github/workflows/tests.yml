@@ -3,8 +3,8 @@ name: "Run tests"
 on:
   push:
     branches:
-      - '!main'
       - '*'
+      - '!main'
   workflow_call:
   workflow_dispatch:
 
