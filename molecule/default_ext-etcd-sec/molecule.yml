@@ -1,0 +1,105 @@
+---
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - &default_k8s_platform
+    name: k8s-control-plane-01
+    hostname: k8s-control-plane-01
+    image: kindest/node:v1.26.3
+    groups:
+      - control_plane
+    volumes:
+      - /lib/modules:/lib/modules:ro
+      - /var/lib/containerd
+    privileged: true
+    pre_build_image: true
+    keep_volumes: false
+    sysctls:
+      net.bridge.bridge-nf-call-iptables: 1
+      net.bridge.bridge-nf-call-ip6tables: 1
+      net.ipv4.ip_forward: 1
+  - <<: *default_k8s_platform
+    name: k8s-control-plane-02
+    hostname: k8s-control-plane-02
+  - &default_etcd_platform
+    name: etcd-instance-01
+    hostname: etcd-instance-01
+    image: mpaivabarbosa/molecule-systemd-ubuntu:20.04
+    groups:
+      - etcd
+    command: /sbin/init
+    security_opts:
+      - seccomp=unconfined
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+    override_command: false
+    keep_volumes: false
+  - <<: *default_etcd_platform
+    name: etcd-instance-02
+    hostname: etcd-instance-02
+  - <<: *default_etcd_platform
+    name: etcd-instance-03
+    hostname: etcd-instance-03
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      k8s-control-plane-01:
+        k8s_cluster_initial_master: true
+    group_vars:
+      control_plane:
+        k8s_cluster_node_type: "master"
+        k8s_cluster_join_configuration:
+          nodeRegistration:
+            ignorePreflightErrors:
+              - SystemVerification
+          discovery:
+            bootstrapToken:
+              token: "{{ k8s_cluster_join_token }}"
+              apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
+              caCertHashes:
+                - "sha256:{{ k8s_cluster_root_ca_hash }}"
+              unsafeSkipCAVerification: false
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+              bindPort: 6443
+        etcd_cert_matrix:
+          - profile_name: client
+            output_name: client
+            csr:
+              CN: client
+              hosts: []
+              key:
+                algo: ecdsa
+                size: 256
+              names:
+                - C: RU
+                  L: Moscow
+                  O: Organization
+                  OU: Organizational Unit
+                  ST: Moscow region
+verifier:
+  name: ansible
+lint: |
+  yamllint .
+  ansible-lint
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy

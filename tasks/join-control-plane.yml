@@ -16,6 +16,7 @@
     owner: root
     group: root
     mode: 0600
+  when: not item.skipped | default(False) | bool
   loop: "{{ k8s_cluster_control_plane_files.results }}"
   loop_control:
     label: "{{ item.item.item }}"

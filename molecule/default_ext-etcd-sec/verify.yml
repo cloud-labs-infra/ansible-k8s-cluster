@@ -1,7 +1,9 @@
 ---
 
 - name: Verify
-  hosts: all
+  hosts:
+    - control_plane
+    - workers
   gather_facts: false
   tasks:
     - name: Include checks for control plane
