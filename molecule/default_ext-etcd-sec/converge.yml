@@ -89,6 +89,7 @@
   gather_facts: true
   vars:
     # cloudlabsinfra.k8s_cluster role related variables
+    k8s_cluster_kubernetes_version: 1.26.0
     k8s_cluster_cluster_configuration:
       etcd:
         external:
