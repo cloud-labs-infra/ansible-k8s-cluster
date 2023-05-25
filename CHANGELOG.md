@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.4.3](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.2...v1.4.3) (2023-05-25)
+
+
+### Bug Fixes
+
+* add tests for secure etcd ([#35](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/35)) ([9468b08](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/9468b083c4f0ed21168b44c3d004865caab05070))
+
 ### [1.4.2](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.1...v1.4.2) (2023-05-25)
 
 
