@@ -99,6 +99,10 @@
           caFile: "/etc/ssl/private/ca.pem"
           certFile: "/etc/ssl/private/client.pem"
           keyFile: "/etc/ssl/private/client-key.pem"
+      networking:
+        serviceSubnet: 10.96.0.0/12
+        podSubnet: 10.244.0.0/16
+        dnsDomain: cluster.local
       kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
       controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
   tasks:
