@@ -1,5 +1,5 @@
 # ansible-k8s-cluster
-=======
+=========
 
 Ansible role for configuring Kubernetes cluster
 
@@ -26,15 +26,16 @@ All variables are defined as defaults in [defaults/main.yml](defaults/main.yml) 
 |`k8s_cluster_apt_repository`|deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main||
 |`k8s_cluster_kubernetes_version`|1.26.0|Kubernetes version|
 |`k8s_cluster_kubelet_config_root_dir`|/etc/kubernetes|Default kubelet configuration directory|
-|`k8s_cluster_node_type`|worker|Default node type. If you need to init or join master, you should set this variable to `master`|
-|`k8s_cluster_initial_master`|false|This variable identifies initial master node to initialize cluster. It should be assigned to the only node with `true` value|
-|`k8s_cluster_init_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `InitConfiguration` of the cluster in pure yaml format except `apiVersion` and `kind` fields|
-|`k8s_cluster_cluster_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `ClusterConfiguration` of the cluster in pure yaml format except `apiVersion` and `kind` fields|
-|`k8s_cluster_kubelet_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `KubeletConfiguration` in pure yaml format except `apiVersion` and `kind` fields|
-|`k8s_cluster_kubeproxy_configuration`|""|Represent `KubeproxyConfiguration` in pure yaml format except `apiVersion` and `kind` fields|
-|`k8s_cluster_join_configuration`|See [defaults/main.yml](defaults/main.yml)|Represent `JoinConfiguration` of the cluster in pure yaml format except `apiVersion` and `kind` fields|
-|`k8s_cluster_pod_network`|See [defaults/main.yml](defaults/main.yml)|Defines pod network - cni and cidr. Will be removed or significantly changed in the future|
+|`k8s_cluster_node_type`|worker|Default node type. If you need to init or join master, you should set this variable to 'master'|
+|`k8s_cluster_initial_master`|false|This variable identifies initial master node to initialize cluster. It should be assigned to the only node with 'true' value|
+|`k8s_cluster_init_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: InitConfiguration` of the cluster in pure yaml format|
+|`k8s_cluster_cluster_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: ClusterConfiguration` of the cluster in pure yaml format|
+|`k8s_cluster_kubelet_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: KubeletConfiguration` in pure yaml format|
+|`k8s_cluster_kubeproxy_configuration`|""|Represents `kind: KubeproxyConfiguration` in pure yaml format|
+|`k8s_cluster_join_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: JoinConfiguration` of the cluster in pure yaml format|
 |`k8s_cluster_flannel_apply`|https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml|Flannel configuration. Will be removed or significantly changed in the future|
+
+\* except `apiVersion` and `kind` fields
 
 Dependencies
 ------------
