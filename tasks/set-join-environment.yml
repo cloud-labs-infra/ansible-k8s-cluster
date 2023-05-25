@@ -65,9 +65,9 @@
         - /etc/kubernetes/pki/sa.pub
         - /etc/kubernetes/pki/front-proxy-ca.crt
         - /etc/kubernetes/pki/front-proxy-ca.key
-        - /etc/kubernetes/admin.conf
         - /etc/kubernetes/pki/etcd/ca.crt
         - /etc/kubernetes/pki/etcd/ca.key
+        - /etc/kubernetes/admin.conf
 
     - name: Gather control plane configurations and certs
       ansible.builtin.slurp:
@@ -75,6 +75,9 @@
       register: control_plane_files
       when: item.stat.exists | bool
       loop: "{{ certificate_files.results }}"
+
+    - debug:
+        msg: "{{ control_plane_files }}"
 
     - name: Set control_plane_files for other nodes
       ansible.builtin.set_fact:
