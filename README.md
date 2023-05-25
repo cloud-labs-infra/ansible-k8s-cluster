@@ -1,9 +1,9 @@
 # ansible-k8s-cluster
-=========
+=====================
 
 Ansible role for configuring Kubernetes cluster
 
-Role initialize Kubernetes cluster from the scratch, adds all defined control-plane and worker nodes. Key feature of the role is ability to define whatever option you want. It's achieved by using [kubeadm configuration](https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/).
+Role initializes Kubernetes cluster from the scratch, adds all defined control-plane and worker nodes. Key feature of the role is ability to define whatever option you want. It's achieved by using [kubeadm configuration](https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/).
 
 Requirements
 ------------
