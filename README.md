@@ -1,40 +1,77 @@
-# ansible-role-k8s-cluster
-=======
-Role Name
-=========
+# ansible-k8s-cluster
 
-A brief description of the role goes here.
+Ansible role for configuring Kubernetes cluster
+
+Role initializes Kubernetes cluster from the scratch, adds all defined control-plane and worker nodes. Key feature of the role is ability to define whatever option you want. It's achieved by using [kubeadm configuration](https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/).
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- [container runtime](https://kubernetes.io/docs/setup/production-environment/container-runtimes/) should be installed (containerd is now the only supported container runtime)
+- `iproute2` package to collect network facts for Debian-like OS
+- provide all required certificates and appropriate etcd endpoint if you use external etcd cluster 
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+All variables are defined as defaults in [defaults/main.yml](defaults/main.yml) and may be overrided.
+
+| Name           | Default value | Description                        |
+| -------------- | ------------- | -----------------------------------|
+|`k8s_cluster_kubelet_version`|1.26.0-00|kubelet version|
+|`k8s_cluster_kubeadm_version`|1.26.0-00|kubeadm version|
+|`k8s_cluster_kubectl_version`|1.26.0-00|kubectl version|
+|`k8s_cluster_apt_key_url`|https://packages.cloud.google.com/apt/doc/apt-key.gpg||
+|`k8s_cluster_apt_repository`|deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main||
+|`k8s_cluster_kubernetes_version`|1.26.0|Kubernetes version|
+|`k8s_cluster_kubelet_config_root_dir`|/etc/kubernetes|Default kubelet configuration directory|
+|`k8s_cluster_node_type`|worker|Default node type. If you need to init or join master, you should set this variable to 'master'|
+|`k8s_cluster_initial_master`|false|This variable identifies initial master node to initialize cluster. It should be assigned to the only node with 'true' value|
+|`k8s_cluster_init_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: InitConfiguration` of the cluster in pure yaml format|
+|`k8s_cluster_cluster_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: ClusterConfiguration` of the cluster in pure yaml format|
+|`k8s_cluster_kubelet_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: KubeletConfiguration` in pure yaml format|
+|`k8s_cluster_kubeproxy_configuration`|""|Represents `kind: KubeproxyConfiguration` in pure yaml format|
+|`k8s_cluster_join_configuration`|See [defaults/main.yml](defaults/main.yml)|Represents `kind: JoinConfiguration` of the cluster in pure yaml format|
+|`k8s_cluster_flannel_apply`|https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml|Flannel configuration. Will be removed or significantly changed in the future|
+
+\* except `apiVersion` and `kind` fields
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Use any role to install containerd
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+You can also find role usage examples in converge playbooks from `molecule/` directory.
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+Example below creates single-master Kubernetes cluster with three worker nodes (etcd will be provisioned automatically by kubeadm as a part of master node): 
+
+```yaml
+# inventory.ini
+[masters]
+master.example.com k8s_cluster_node_type="master" k8s_cluster_initial_master="true"
+
+[workers]
+worker-1.example.com
+worker-2.example.com
+worker-3.example.com
+
+# playbook.yml
+- hosts: all
+  become: true
+  roles:
+    - { role: geerlingguy.containerd }
+    - { role: cloudlabsinfra.k8s_cluster }
+```
 
 License
 -------
 
-BSD
+Apache 2.0
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Cloud Labs shared roles
