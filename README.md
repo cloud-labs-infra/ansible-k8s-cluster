@@ -44,11 +44,27 @@ Use any role to install containerd
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+You can also find role usage examples in converge playbooks from `molecule/` directory.
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+Example below creates single-master Kubernetes cluster with three worker nodes (etcd will be provisioned automatically by kubeadm as a part of master node): 
+
+```yaml
+# inventory.ini
+[masters]
+master.example.com k8s_cluster_node_type="master" k8s_cluster_initial_master="true"
+
+[workers]
+worker-1.example.com
+worker-2.example.com
+worker-3.example.com
+
+# playbook.yml
+- hosts: all
+  become: true
+  roles:
+    - { role: geerlingguy.containerd }
+    - { role: cloudlabsinfra.k8s_cluster }
+```
 
 License
 -------
