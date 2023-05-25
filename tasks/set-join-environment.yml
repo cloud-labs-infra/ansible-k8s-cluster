@@ -76,9 +76,6 @@
       when: item.stat.exists | bool
       loop: "{{ certificate_files.results }}"
 
-    - debug:
-        msg: "{{ control_plane_files }}"
-
     - name: Set control_plane_files for other nodes
       ansible.builtin.set_fact:
         k8s_cluster_control_plane_files: "{{ control_plane_files }}"
