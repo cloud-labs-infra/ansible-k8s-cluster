@@ -39,15 +39,10 @@
   gather_facts: true
   vars:
     # cloudlabsinfra.k8s_cluster role related variables
-    k8s_cluster_kubernetes_version: 1.26.0
     k8s_cluster_cluster_configuration:
       etcd:
         external:
           endpoints: [ "http://{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:2379" ]
-      networking:
-        serviceSubnet: 10.96.0.0/12
-        podSubnet: 10.244.0.0/16
-        dnsDomain: cluster.local
       kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
   roles:
     - { role: andrewrothstein.etcd }
