@@ -1,5 +1,4 @@
 # ansible-k8s-cluster
-=====================
 
 Ansible role for configuring Kubernetes cluster
 
