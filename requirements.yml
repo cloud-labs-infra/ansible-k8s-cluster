@@ -12,12 +12,8 @@
 - name: andrewrothstein.cfssl
   version: v3.1.1
 
-- name: ansible-etcd-cluster
-  scm: git
-  version: 0.1.0
-  src: https://github.com/cloud-labs-infra/ansible-etcd-cluster.git
+- name: cloudlabsinfra.etcd_cluster
+  version: v1.0.0
 
-- name: ansible-etcd-cluster-certificates
-  scm: git
-  version: 0.2.0
-  src: https://github.com/cloud-labs-infra/ansible-etcd-cluster-certificates.git
+- name: cloudlabsinfra.etcd_cluster_certificates
+  version: v1.0.0

@@ -37,29 +37,29 @@
   gather_facts: false
   become_method: su
   vars:
-    # ansible-etcd-cluster-certificates role related variables
+    # cloudlabsinfra.etcd_cluster_certificates role related variables
     etcd_cert_dir: /etc/ssl/private
   pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
-          - iproute2 # provides network facts
+          - iproute2  # provides network facts
           - net-tools
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
   roles:
     - { role: andrewrothstein.cfssl }
-    - { role: ansible-etcd-cluster-certificates }
+    - { role: cloudlabsinfra.etcd_cluster_certificates }
 
 - name: Configure etcd
   hosts: etcd
   become: yes
   gather_facts: false
   vars:
-    # ansible-etcd-cluster-certificates role related variables
+    # cloudlabsinfra.etcd_cluster_certificates role related variables
     etcd_cert_dir: /etc/ssl/private
-    # ansible-etcd-cluster role related variables
+    # cloudlabsinfra.etcd_cluster role related variables
     # client/server
     etcd_trusted_ca_file: "{{ etcd_conf_dir }}/ca.pem"
     etcd_key_file: "{{ etcd_conf_dir }}/server-key.pem"
@@ -78,7 +78,7 @@
       - "{{ etcd_cert_dir }}/peer.pem"
   roles:
     - { role: andrewrothstein.etcd }
-    - { role: ansible-etcd-cluster }
+    - { role: cloudlabsinfra.etcd_cluster }
 
 - name: Converge
   hosts:
