@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.4.4](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.3...v1.4.4) (2023-05-26)
+
+
+### Bug Fixes
+
+* run tests each release ([#38](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/38)) ([f6dfd1f](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/f6dfd1fbd636d5dc9c630fde0d40adaef8a6e257))
+
 ### [1.4.3](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.2...v1.4.3) (2023-05-25)
 
 
