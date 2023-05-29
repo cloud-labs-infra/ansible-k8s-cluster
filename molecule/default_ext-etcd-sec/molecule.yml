@@ -51,42 +51,6 @@ provisioner:
     host_vars:
       k8s-control-plane-01:
         k8s_cluster_initial_master: true
-    group_vars:
-      all:
-        # cloudlabsinfra.etcd_cluster_certificates role related variables
-        etcd_cert_dir: /etc/ssl/private
-      control_plane:
-        k8s_cluster_node_type: "master"
-        k8s_cluster_join_configuration:
-          nodeRegistration:
-            ignorePreflightErrors:
-              - SystemVerification
-          discovery:
-            bootstrapToken:
-              token: "{{ k8s_cluster_join_token }}"
-              apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
-              caCertHashes:
-                - "sha256:{{ k8s_cluster_root_ca_hash }}"
-              unsafeSkipCAVerification: false
-          controlPlane:
-            localAPIEndpoint:
-              advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
-              bindPort: 6443
-        etcd_cert_matrix:
-          - profile_name: client
-            output_name: client
-            csr:
-              CN: client
-              hosts: []
-              key:
-                algo: ecdsa
-                size: 256
-              names:
-                - C: RU
-                  L: Moscow
-                  O: Organization
-                  OU: Organizational Unit
-                  ST: Moscow region
         k8s_cluster_kubernetes_version: 1.26.0
         k8s_cluster_cluster_configuration:
           etcd:
@@ -104,8 +68,44 @@ provisioner:
             dnsDomain: cluster.local
           kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
           controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-      etcd: # cloudlabsinfra.etcd_cluster_certificates role related variables
+      k8s-control-plane-02:
+        k8s_cluster_join_configuration:
+          nodeRegistration:
+            ignorePreflightErrors:
+              - SystemVerification
+          discovery:
+            bootstrapToken:
+              token: "{{ k8s_cluster_join_token }}"
+              apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
+              caCertHashes:
+                - "sha256:{{ k8s_cluster_root_ca_hash }}"
+              unsafeSkipCAVerification: false
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+              bindPort: 6443
+    group_vars:
+      all:
+        # cloudlabsinfra.etcd_cluster_certificates role related variables
         etcd_cert_dir: /etc/ssl/private
+      control_plane:
+        k8s_cluster_node_type: "master"
+        etcd_cert_matrix:
+          - profile_name: client
+            output_name: client
+            csr:
+              CN: client
+              hosts: []
+              key:
+                algo: ecdsa
+                size: 256
+              names:
+                - C: RU
+                  L: Moscow
+                  O: Organization
+                  OU: Organizational Unit
+                  ST: Moscow region
+      etcd:
         # cloudlabsinfra.etcd_cluster role related variables
         # client/server
         etcd_trusted_ca_file: "{{ etcd_conf_dir }}/ca.pem"
