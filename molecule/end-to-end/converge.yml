@@ -53,7 +53,7 @@
       ansible.builtin.setup:
   roles:
     - { role: andrewrothstein.cfssl }
-    - { role: ansible-etcd-cluster-certificates }
+    - { role: cloudlabsinfra.etcd_cluster_certificates }
 
 - name: Configure etcd
   hosts: etcd
