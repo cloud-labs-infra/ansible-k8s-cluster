@@ -1,0 +1,148 @@
+---
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - &default_platform_common
+    name: etcd-instance-01
+    hostname: etcd-instance-01
+    image: mpaivabarbosa/molecule-systemd-ubuntu:20.04
+    groups:
+      - etcd
+    command: /sbin/init
+    security_opts:
+      - seccomp=unconfined
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+    override_command: false
+    keep_volumes: false
+  - <<: *default_platform_common
+    name: etcd-instance-02
+    hostname: etcd-instance-02
+  - &default_platform
+    name: k8s-control-plane-01
+    hostname: k8s-control-plane-01
+    image: kindest/node:v1.26.3
+    groups:
+      - control_plane
+      - etcd_clients
+    volumes:
+      - /lib/modules:/lib/modules:ro
+      - /var/lib/containerd
+    privileged: true
+    pre_build_image: true
+    keep_volumes: false
+    sysctls:
+      net.bridge.bridge-nf-call-iptables: 1
+      net.bridge.bridge-nf-call-ip6tables: 1
+      net.ipv4.ip_forward: 1
+  - <<: *default_platform
+    name: k8s-control-plane-02
+    hostname: k8s-control-plane-02
+  - <<: *default_platform
+    name: k8s-worker-01
+    hostname: k8s-worker-01
+    groups:
+      - workers
+      - etcd_clients
+  - <<: *default_platform_common
+    name: lb-01
+    hostname: lb-01
+    groups: []
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      k8s-control-plane-01:
+        k8s_cluster_initial_master: true
+    group_vars:
+      control_plane:
+        # cloudlabsinfra.k8s_cluster role related variables
+        k8s_cluster_kubernetes_version: 1.26.0
+        # we can't use default cluster configuration here because it doesn't have 'etcd' section
+        k8s_cluster_cluster_configuration:
+          etcd:
+            external:
+              endpoints:
+                - "https://{{ hostvars['etcd-instance-01']['ansible_default_ipv4']['address'] }}:2379"
+                - "https://{{ hostvars['etcd-instance-02']['ansible_default_ipv4']['address'] }}:2379"
+              caFile: "/etc/ssl/private/ca.pem"
+              certFile: "/etc/ssl/private/client.pem"
+              keyFile: "/etc/ssl/private/client-key.pem"
+          networking:
+            serviceSubnet: 10.96.0.0/12
+            podSubnet: 10.244.0.0/16
+            dnsDomain: cluster.local
+          kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
+          controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
+        # default value of variable below is 'worker'
+        k8s_cluster_node_type: "master"
+        # we can't use default join configuration here because it doesn't have 'controlPlane' section
+        k8s_cluster_join_configuration:
+          nodeRegistration:
+            ignorePreflightErrors:
+              - SystemVerification
+          discovery:
+            bootstrapToken:
+              token: "{{ k8s_cluster_join_token }}"
+              apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
+              caCertHashes:
+                - "sha256:{{ k8s_cluster_root_ca_hash }}"
+              unsafeSkipCAVerification: false
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}"
+              bindPort: 6443
+      etcd_clients:
+        etcd_cert_matrix:
+          - profile_name: client
+            output_name: client
+            csr:
+              CN: client
+              hosts: []
+              key:
+                algo: ecdsa
+                size: 256
+              names:
+                - C: RU
+                  L: Moscow
+                  O: Organization
+                  OU: Organizational Unit
+                  ST: Moscow region
+      etcd:
+        # cloudlabsinfra.etcd_cluster_certificates role related variables
+        etcd_cert_dir: /etc/ssl/private
+        # cloudlabsinfra.etcd_cluster role related variables
+        # client/server
+        etcd_trusted_ca_file: "{{ etcd_conf_dir }}/ca.pem"
+        etcd_key_file: "{{ etcd_conf_dir }}/server-key.pem"
+        etcd_cert_file: "{{ etcd_conf_dir }}/server.pem"
+        etcd_client_cert_auth: 'true'
+        # peer
+        etcd_peer_trusted_ca_file: "{{ etcd_trusted_ca_file }}"
+        etcd_peer_key_file: "{{ etcd_conf_dir }}/peer-key.pem"
+        etcd_peer_cert_file: "{{ etcd_conf_dir }}/peer.pem"
+        etcd_peer_client_cert_auth: 'true'
+        etcd_remote_cert_files:
+          - "{{ etcd_cert_dir }}/ca.pem"
+          - "{{ etcd_cert_dir }}/server-key.pem"
+          - "{{ etcd_cert_dir }}/server.pem"
+          - "{{ etcd_cert_dir }}/peer-key.pem"
+          - "{{ etcd_cert_dir }}/peer.pem"
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
