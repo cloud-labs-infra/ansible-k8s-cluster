@@ -36,9 +36,6 @@
   hosts: all
   gather_facts: false
   become_method: su
-  vars:
-    # cloudlabsinfra.etcd_cluster_certificates role related variables
-    etcd_cert_dir: /etc/ssl/private
   pre_tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
@@ -56,26 +53,6 @@
   hosts: etcd
   become: yes
   gather_facts: false
-  vars:
-    # cloudlabsinfra.etcd_cluster_certificates role related variables
-    etcd_cert_dir: /etc/ssl/private
-    # cloudlabsinfra.etcd_cluster role related variables
-    # client/server
-    etcd_trusted_ca_file: "{{ etcd_conf_dir }}/ca.pem"
-    etcd_key_file: "{{ etcd_conf_dir }}/server-key.pem"
-    etcd_cert_file: "{{ etcd_conf_dir }}/server.pem"
-    etcd_client_cert_auth: 'true'
-    # peer
-    etcd_peer_trusted_ca_file: "{{ etcd_trusted_ca_file }}"
-    etcd_peer_key_file: "{{ etcd_conf_dir }}/peer-key.pem"
-    etcd_peer_cert_file: "{{ etcd_conf_dir }}/peer.pem"
-    etcd_peer_client_cert_auth: 'true'
-    etcd_remote_cert_files:
-      - "{{ etcd_cert_dir }}/ca.pem"
-      - "{{ etcd_cert_dir }}/server-key.pem"
-      - "{{ etcd_cert_dir }}/server.pem"
-      - "{{ etcd_cert_dir }}/peer-key.pem"
-      - "{{ etcd_cert_dir }}/peer.pem"
   roles:
     - { role: andrewrothstein.etcd }
     - { role: cloudlabsinfra.etcd_cluster }
