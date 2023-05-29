@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.4.5](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.4...v1.4.5) (2023-05-29)
+
+
+### Bug Fixes
+
+* move vars from converge to molecule ([#42](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/42)) ([c6260fd](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/c6260fddd89538f953fe3de89e43b16ebe8fa27f))
+
 ### [1.4.4](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.3...v1.4.4) (2023-05-26)
 
 
