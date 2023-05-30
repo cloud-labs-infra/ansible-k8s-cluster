@@ -5,6 +5,7 @@ dependency:
 driver:
   name: docker
 platforms:
+  # etcd
   - &default_platform_common
     name: etcd-instance-01
     hostname: etcd-instance-01
@@ -20,13 +21,24 @@ platforms:
     pre_build_image: true
     override_command: false
     keep_volumes: false
+    # https://github.com/ansible-community/molecule-docker/blob/main/src/molecule_docker/driver.py
+    docker_networks:
+      - name: k8s_cluster
+        ipam_config:
+          - subnet: '172.18.0.0/24'
+            gateway: '172.18.0.254'
+    networks:
+      - name: k8s_cluster
+#        ipv4_address: "172.18.0.100"
   - <<: *default_platform_common
     name: etcd-instance-02
     hostname: etcd-instance-02
+  # k8s
   - &default_platform
     name: k8s-control-plane-01
     hostname: k8s-control-plane-01
-    image: kindest/node:v1.26.3
+    #    image: kindest/node:v1.26.3
+    image: k8s_experimental_01:python
     groups:
       - control_plane
       - etcd_clients
@@ -40,6 +52,12 @@ platforms:
       net.bridge.bridge-nf-call-iptables: 1
       net.bridge.bridge-nf-call-ip6tables: 1
       net.ipv4.ip_forward: 1
+    docker_networks:
+      - name: k8s_cluster
+        ipam_config:
+          - subnet: '172.18.0.0/24'
+            gateway: '172.18.0.254'
+    etc_hosts: {'etcd.cloudlabsinfra.local': '172.18.0.100'}  # dns name of load balancer
   - <<: *default_platform
     name: k8s-control-plane-02
     hostname: k8s-control-plane-02
@@ -48,11 +66,15 @@ platforms:
     hostname: k8s-worker-01
     groups:
       - workers
-      - etcd_clients
+  # load balancer
   - <<: *default_platform_common
     name: lb-01
     hostname: lb-01
-    groups: []
+    groups:
+      - lb
+    networks:
+      - name: k8s_cluster
+        ipv4_address: "172.18.0.100"
 provisioner:
   name: ansible
   inventory:
@@ -77,7 +99,23 @@ provisioner:
             dnsDomain: cluster.local
           kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
           controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
+      lb-01:
+        haproxy_frontend_name: 'etcd'
+        haproxy_frontend_bind_address: '*'
+        haproxy_frontend_port: 2379
+        haproxy_frontend_mode: 'tcp'
+        haproxy_backend_name: 'etcd'
+        haproxy_backend_mode: 'tcp'
+        haproxy_backend_balance_method: 'roundrobin'
+        haproxy_backend_httpchk: ''
+        haproxy_backend_servers:
+          - name: etcd-instance-01
+            address: "{{ hostvars['etcd-instance-01']['ansible_facts']['default_ipv4']['address'] }}:2379"
+          - name: etcd-instance-02
+            address: "{{ hostvars['etcd-instance-02']['ansible_facts']['default_ipv4']['address'] }}:2379"
     group_vars:
+      all:
+        etcd_frontend_name: "etcd.cloudlabsinfra.local"
       control_plane:
         # default value of variable below is 'worker'
         k8s_cluster_node_type: "master"
@@ -133,6 +171,35 @@ provisioner:
           - "{{ etcd_cert_dir }}/server.pem"
           - "{{ etcd_cert_dir }}/peer-key.pem"
           - "{{ etcd_cert_dir }}/peer.pem"
+        etcd_cert_matrix:
+          - profile_name: server
+            output_name: server
+            csr: &default_csr
+              CN: "{{ inventory_hostname }}"
+              hosts:
+                - "{{ inventory_hostname }}"
+                - "{{ ansible_default_ipv4.address }}"
+                - "{{ etcd_frontend_name }}"
+              key:
+                algo: ecdsa
+                size: 256
+              names:
+                - C: RU
+                  L: Moscow
+                  O: Organization
+                  OU: Organizational Unit
+                  ST: Moscow region
+          - profile_name: peer
+            output_name: peer
+            csr:
+              <<: *default_csr
+          - profile_name: client
+            output_name: client
+            csr:
+              <<: *default_csr
+              CN: client
+              hosts: [ ]
+
 scenario:
   test_sequence:
     - dependency

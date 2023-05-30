@@ -33,24 +33,26 @@
     - name: Collect facts
       ansible.builtin.setup:
 
-- name: Configure certs
-  hosts:
-    - etcd
-    - etcd_clients
+- name: Pre configure all hosts
+  hosts: all
   gather_facts: false
-  become_method: su
-  vars:
-    # cloudlabsinfra.etcd_cluster_certificates role related variables
-    etcd_cert_dir: /etc/ssl/private
-  pre_tasks:
+  tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
           - iproute2  # provides network facts
           - net-tools
+          - curl
         update_cache: true
     - name: Collect facts
       ansible.builtin.setup:
+
+- name: Configure certs
+  hosts:
+    - etcd
+    - etcd_clients
+  gather_facts: true
+  become_method: su
   roles:
     - { role: andrewrothstein.cfssl }
     - { role: cloudlabsinfra.etcd_cluster_certificates }
@@ -58,19 +60,27 @@
 - name: Configure etcd
   hosts: etcd
   become: yes
-  gather_facts: false
+  gather_facts: true
   roles:
     - { role: andrewrothstein.etcd }
     - { role: cloudlabsinfra.etcd_cluster }
 
-- name: Converge
-  hosts:
-    - control_plane
-    - workers
+- name: Configure load balancers
+  hosts: lb-01
   become: yes
   become_method: su
-  gather_facts: false
-  tasks:
-    - name: "Include cloudlabsinfra.k8s_cluster"
-      ansible.builtin.include_role:
-        name: "cloudlabsinfra.k8s_cluster"
+  gather_facts: true
+  roles:
+    - { role: geerlingguy.haproxy }
+
+#- name: Converge
+#  hosts:
+#    - control_plane
+#    - workers
+#  become: yes
+#  become_method: su
+#  gather_facts: false
+#  tasks:
+#    - name: "Include cloudlabsinfra.k8s_cluster"
+#      ansible.builtin.include_role:
+#        name: "cloudlabsinfra.k8s_cluster"
