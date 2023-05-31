@@ -25,13 +25,8 @@
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
-          - iproute2  # provides network facts
           - kmod  # modprobe and lsmod
-          - net-tools
-          - curl
         update_cache: true
-    - name: Collect facts
-      ansible.builtin.setup:
 
 - name: Pre configure all hosts
   hosts: all
@@ -66,21 +61,19 @@
     - { role: cloudlabsinfra.etcd_cluster }
 
 - name: Configure load balancers
-  hosts: lb-01
+  hosts: lb
   become: yes
   become_method: su
   gather_facts: true
   roles:
     - { role: geerlingguy.haproxy }
 
-#- name: Converge
-#  hosts:
-#    - control_plane
-#    - workers
-#  become: yes
-#  become_method: su
-#  gather_facts: false
-#  tasks:
-#    - name: "Include cloudlabsinfra.k8s_cluster"
-#      ansible.builtin.include_role:
-#        name: "cloudlabsinfra.k8s_cluster"
+- name: Converge
+  hosts:
+    - control_plane
+    - workers
+  become: yes
+  become_method: su
+  gather_facts: false
+  roles:
+    - { role: cloudlabsinfra.k8s_cluster }

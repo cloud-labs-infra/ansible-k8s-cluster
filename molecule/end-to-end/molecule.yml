@@ -29,10 +29,26 @@ platforms:
             gateway: '172.18.0.254'
     networks:
       - name: k8s_cluster
-#        ipv4_address: "172.18.0.100"
   - <<: *default_platform_common
     name: etcd-instance-02
     hostname: etcd-instance-02
+  # load balancer
+  - <<: *default_platform_common
+    name: lb-etcd
+    hostname: lb-etcd
+    groups:
+      - lb
+    networks:
+      - name: k8s_cluster
+        ipv4_address: "172.18.0.100"
+  - <<: *default_platform_common
+    name: lb-master
+    hostname: lb-master
+    groups:
+      - lb
+    networks:
+      - name: k8s_cluster
+        ipv4_address: "172.18.0.200"
   # k8s
   - &default_platform
     name: k8s-control-plane-01
@@ -57,7 +73,11 @@ platforms:
         ipam_config:
           - subnet: '172.18.0.0/24'
             gateway: '172.18.0.254'
-    etc_hosts: {'etcd.cloudlabsinfra.local': '172.18.0.100'}  # dns name of load balancer
+    networks:
+      - name: k8s_cluster
+    etc_hosts:
+      'etcd.cloudlabsinfra.local': '172.18.0.100'  # dns name of etcd load balancer
+      'control-plane.cloudlabsinfra.local': '172.18.0.200'  # dns name of control-plane load balancer
   - <<: *default_platform
     name: k8s-control-plane-02
     hostname: k8s-control-plane-02
@@ -66,15 +86,6 @@ platforms:
     hostname: k8s-worker-01
     groups:
       - workers
-  # load balancer
-  - <<: *default_platform_common
-    name: lb-01
-    hostname: lb-01
-    groups:
-      - lb
-    networks:
-      - name: k8s_cluster
-        ipv4_address: "172.18.0.100"
 provisioner:
   name: ansible
   inventory:
@@ -87,9 +98,7 @@ provisioner:
         k8s_cluster_cluster_configuration:
           etcd:
             external:
-              endpoints:
-                - "https://{{ hostvars['etcd-instance-01']['ansible_default_ipv4']['address'] }}:2379"
-                - "https://{{ hostvars['etcd-instance-02']['ansible_default_ipv4']['address'] }}:2379"
+              endpoints: ["https://{{ etcd_frontend_name }}:2379"]
               caFile: "/etc/ssl/private/ca.pem"
               certFile: "/etc/ssl/private/client.pem"
               keyFile: "/etc/ssl/private/client-key.pem"
@@ -98,8 +107,8 @@ provisioner:
             podSubnet: 10.244.0.0/16
             dnsDomain: cluster.local
           kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
-          controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
-      lb-01:
+          controlPlaneEndpoint: "{{ k8s_cluster_control_plane_endpoint }}:6443"
+      lb-etcd:
         haproxy_frontend_name: 'etcd'
         haproxy_frontend_bind_address: '*'
         haproxy_frontend_port: 2379
@@ -113,9 +122,25 @@ provisioner:
             address: "{{ hostvars['etcd-instance-01']['ansible_facts']['default_ipv4']['address'] }}:2379"
           - name: etcd-instance-02
             address: "{{ hostvars['etcd-instance-02']['ansible_facts']['default_ipv4']['address'] }}:2379"
+      lb-master:
+        haproxy_frontend_name: 'master'
+        haproxy_frontend_bind_address: '*'
+        haproxy_frontend_port: 6443
+        haproxy_frontend_mode: 'tcp'
+        haproxy_backend_name: 'master'
+        haproxy_backend_mode: 'tcp'
+        haproxy_backend_balance_method: 'roundrobin'
+        haproxy_backend_httpchk: ''
+        haproxy_backend_servers:
+          - name: k8s-control-plane-01
+            address: "{{ hostvars['k8s-control-plane-01']['ansible_facts']['default_ipv4']['address'] }}:6443"
+          - name: k8s-control-plane-02
+            address: "{{ hostvars['k8s-control-plane-02']['ansible_facts']['default_ipv4']['address'] }}:6443"
     group_vars:
       all:
+        # required for control-plane nodes and etcd as well
         etcd_frontend_name: "etcd.cloudlabsinfra.local"
+        k8s_cluster_control_plane_endpoint: "control-plane.cloudlabsinfra.local"
       control_plane:
         # default value of variable below is 'worker'
         k8s_cluster_node_type: "master"
@@ -127,7 +152,7 @@ provisioner:
           discovery:
             bootstrapToken:
               token: "{{ k8s_cluster_join_token }}"
-              apiServerEndpoint: "{{ k8s_cluster_api_server_ip }}:{{ k8s_cluster_init_configuration.localAPIEndpoint.bindPort }}"
+              apiServerEndpoint: "{{ k8s_cluster_control_plane_endpoint }}:6443"
               caCertHashes:
                 - "sha256:{{ k8s_cluster_root_ca_hash }}"
               unsafeSkipCAVerification: false
@@ -198,8 +223,7 @@ provisioner:
             csr:
               <<: *default_csr
               CN: client
-              hosts: [ ]
-
+              hosts: []
 scenario:
   test_sequence:
     - dependency
