@@ -1,0 +1,79 @@
+---
+
+- name: Configure host
+  hosts: localhost
+  connection: local
+  become: yes
+  pre_tasks:
+    - name: Set proper nf_conntrack_max
+      ansible.posix.sysctl:
+        name: net.netfilter.nf_conntrack_max
+        value: '393216'
+        sysctl_set: true
+        state: present
+        reload: true
+
+- name: Configure k8s instances
+  hosts:
+    - control_plane
+    - workers
+  gather_facts: false
+  tasks:
+    - name: Install Python
+      ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
+      changed_when: false
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - kmod  # modprobe and lsmod
+        update_cache: true
+
+- name: Pre configure all hosts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - iproute2  # provides network facts
+          - net-tools
+          - curl
+        update_cache: true
+    - name: Collect facts
+      ansible.builtin.setup:
+
+- name: Configure certs
+  hosts:
+    - etcd
+    - etcd_clients
+  gather_facts: true
+  become_method: su
+  roles:
+    - { role: andrewrothstein.cfssl }
+    - { role: cloudlabsinfra.etcd_cluster_certificates }
+
+- name: Configure etcd
+  hosts: etcd
+  become: yes
+  gather_facts: true
+  roles:
+    - { role: andrewrothstein.etcd }
+    - { role: cloudlabsinfra.etcd_cluster }
+
+- name: Configure load balancers
+  hosts: lb
+  become: yes
+  become_method: su
+  gather_facts: true
+  roles:
+    - { role: geerlingguy.haproxy }
+
+- name: Converge
+  hosts:
+    - control_plane
+    - workers
+  become: yes
+  become_method: su
+  gather_facts: false
+  roles:
+    - { role: cloudlabsinfra.k8s_cluster }
