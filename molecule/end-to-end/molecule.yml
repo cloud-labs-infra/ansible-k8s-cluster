@@ -32,7 +32,7 @@ platforms:
   - <<: *default_platform_common
     name: etcd-instance-02
     hostname: etcd-instance-02
-  # load balancer
+  # load balancers
   - <<: *default_platform_common
     name: lb-etcd
     hostname: lb-etcd
@@ -49,12 +49,12 @@ platforms:
     networks:
       - name: k8s_cluster
         ipv4_address: "172.18.0.200"
+  # --------
   # k8s
   - &default_platform
     name: k8s-control-plane-01
     hostname: k8s-control-plane-01
-    #    image: kindest/node:v1.26.3
-    image: k8s_experimental_01:python
+    image: kindest/node:v1.26.3
     groups:
       - control_plane
       - etcd_clients
