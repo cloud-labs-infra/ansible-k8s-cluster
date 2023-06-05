@@ -21,6 +21,14 @@
       ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
       changed_when: false
 
+    - name: Make containerd defautl to crictl
+      ansible.builtin.copy:
+        content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
+        dest: /etc/crictl.yaml
+        owner: root
+        group: root
+        mode: 0640
+
 - name: Converge
   hosts: all
   become: yes

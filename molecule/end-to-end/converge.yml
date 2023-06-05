@@ -28,6 +28,14 @@
           - kmod  # modprobe and lsmod
         update_cache: true
 
+    - name: Make containerd defautl to crictl
+      ansible.builtin.copy:
+        content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
+        dest: /etc/crictl.yaml
+        owner: root
+        group: root
+        mode: 0640
+
 - name: Pre configure all hosts
   hosts: all
   gather_facts: false

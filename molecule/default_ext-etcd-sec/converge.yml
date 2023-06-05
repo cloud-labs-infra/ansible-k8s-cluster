@@ -32,6 +32,14 @@
     - name: Collect facts
       ansible.builtin.setup:
 
+    - name: Make containerd defautl to crictl
+      ansible.builtin.copy:
+        content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
+        dest: /etc/crictl.yaml
+        owner: root
+        group: root
+        mode: 0640
+
 - name: Configure certs
   hosts: all
   gather_facts: false
