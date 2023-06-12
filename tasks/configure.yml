@@ -10,6 +10,7 @@
           - apt-transport-https
           - ca-certificates
           - curl
+          - jq
         state: present
         update_cache: yes
 
