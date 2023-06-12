@@ -57,7 +57,7 @@
       --kubeconfig=/etc/kubernetes/admin.conf \
         > /tmp/flannel.log 2>&1
   changed_when: False
-  
+
 - name: Check master node until ready
   ansible.builtin.shell: |
     kubectl get node {{ ansible_hostname }} \
