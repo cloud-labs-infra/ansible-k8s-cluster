@@ -19,6 +19,7 @@ k8s_cluster_init_configuration:
   # the node name, the CRI socket to use or any other settings that should apply to this
   # node only (e.g. the node ip)
   nodeRegistration:
+    name: "{{ inventory_hostname }}"
     ignorePreflightErrors:
       - SystemVerification
   # localAPIEndpoint represents the endpoint of the API server instance that's deployed on this
@@ -60,6 +61,7 @@ k8s_cluster_join_configuration:
   # the node name, the CRI socket to use or any other settings that should apply to this
   # node only (e.g. the node ip)
   nodeRegistration:
+    name: "{{ inventory_hostname }}"
     ignorePreflightErrors:
       - SystemVerification
   # options for the kubelet to use during the TLS bootstrap process
