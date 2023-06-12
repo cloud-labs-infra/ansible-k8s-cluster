@@ -71,6 +71,7 @@ provisioner:
       k8s-control-plane-02:
         k8s_cluster_join_configuration:
           nodeRegistration:
+            name: "{{ inventory_hostname }}"
             ignorePreflightErrors:
               - SystemVerification
           discovery:
