@@ -57,3 +57,13 @@
       --kubeconfig=/etc/kubernetes/admin.conf \
         > /tmp/flannel.log 2>&1
   changed_when: False
+  
+- name: Check master node until ready
+  ansible.builtin.shell: |
+    kubectl get node {{ ansible_hostname }} \
+      --kubeconfig=/etc/kubernetes/admin.conf -o json | jq -Mr '.status.conditions[4].status'
+  register: kubectl_response
+  changed_when: false
+  until: kubectl_response.stdout == "True"
+  retries: 48
+  delay: 5
