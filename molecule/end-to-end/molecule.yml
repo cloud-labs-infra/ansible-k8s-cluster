@@ -147,7 +147,7 @@ provisioner:
         # we can't use default join configuration here because it doesn't have 'controlPlane' section
         k8s_cluster_join_configuration:
           nodeRegistration:
-            name: "{{ inventory_hostname }}"
+            name: "{{ k8s_cluster_node_name }}"
             ignorePreflightErrors:
               - SystemVerification
           discovery:

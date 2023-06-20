@@ -38,7 +38,7 @@ provisioner:
         k8s_cluster_node_type: "master"
         k8s_cluster_join_configuration:
           nodeRegistration:
-            name: "{{ inventory_hostname }}"
+            name: "{{ k8s_cluster_node_name }}"
             ignorePreflightErrors:
               - SystemVerification
           discovery:
