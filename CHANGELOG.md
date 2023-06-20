@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.4.6](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.5...v1.4.6) (2023-06-20)
+
+
+### Bug Fixes
+
+* install jq ([#52](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/52)) ([5c885f3](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/5c885f3682771c8f291afa765d2ff457f72d9550))
+
 ### [1.4.5](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.4...v1.4.5) (2023-05-29)
 
 
