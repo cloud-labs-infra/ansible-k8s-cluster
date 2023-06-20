@@ -19,22 +19,9 @@
     - workers
   gather_facts: false
   tasks:
-    - name: Install Python
-      ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
-      changed_when: false
-    - name: Install prerequisites
-      ansible.builtin.apt:
-        name:
-          - kmod  # modprobe and lsmod
-        update_cache: true
-
-    - name: Make containerd defautl to crictl
-      ansible.builtin.copy:
-        content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
-        dest: /etc/crictl.yaml
-        owner: root
-        group: root
-        mode: 0640
+    - name: Include configure for k8s instances
+      ansible.builtin.include_tasks:
+        file: ../configure-k8s-instances.yml
 
 - name: Pre configure all hosts
   hosts: all
