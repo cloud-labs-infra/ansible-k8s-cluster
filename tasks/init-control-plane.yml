@@ -49,11 +49,11 @@
     - name: Stop play for all hosts because cluster is not initialized
       ansible.builtin.meta: end_play
 
-# https://github.com/flannel-io/flannel
-- name: Configure Flannel networking
-  ansible.builtin.shell: |
-    kubectl apply \
-      -f {{ k8s_cluster_flannel_apply }} \
-      --kubeconfig=/etc/kubernetes/admin.conf \
-        > /tmp/flannel.log 2>&1
-  changed_when: False
+## https://github.com/flannel-io/flannel
+#- name: Configure Flannel networking
+#  ansible.builtin.shell: |
+#    kubectl apply \
+#      -f {{ k8s_cluster_flannel_apply }} \
+#      --kubeconfig=/etc/kubernetes/admin.conf \
+#        > /tmp/flannel.log 2>&1
+#  changed_when: False
