@@ -85,14 +85,6 @@
         - net.bridge.bridge-nf-call-ip6tables
         - net.ipv4.ip_forward
 
-    - name: Make containerd defautl to crictl
-      ansible.builtin.copy:
-        content: "runtime-endpoint: unix:///var/run/containerd/containerd.sock\n"
-        dest: /etc/crictl.yaml
-        owner: root
-        group: root
-        mode: 0640
-
     - name: Create kubelet root directory
       ansible.builtin.file:
         path: "{{ k8s_cluster_kubelet_config_root_dir }}"
