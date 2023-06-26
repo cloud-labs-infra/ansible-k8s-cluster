@@ -88,3 +88,4 @@ k8s_cluster_join_configuration:
 
 # https://github.com/flannel-io/flannel
 k8s_cluster_flannel_apply: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+k8s_cluster_custom_networking_tasks_path: ""
