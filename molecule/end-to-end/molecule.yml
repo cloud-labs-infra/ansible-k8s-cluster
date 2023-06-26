@@ -110,7 +110,7 @@ provisioner:
           controlPlaneEndpoint: "{{ k8s_cluster_control_plane_endpoint }}:6443"
         # custom networking
         k8s_cluster_flannel_apply: ""
-        k8s_cluster_custom_networking_tasks_path: "custom-networking.yml"
+        k8s_cluster_custom_networking_tasks_path: "network/custom-networking.yml"
       lb-etcd:
         haproxy_frontend_name: 'etcd'
         haproxy_frontend_bind_address: '*'
