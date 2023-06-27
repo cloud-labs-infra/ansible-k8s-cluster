@@ -34,7 +34,7 @@ jobs:
       - name: List molecule scenarios
         id: set-matrix
         run: |
-          MOLECULE_SCENARIOS=$(find molecule/ -mindepth 1 -type d -exec basename {} \; | jq -ncR '[inputs]')
+          MOLECULE_SCENARIOS=$(find molecule/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | jq -ncR '[inputs]')
           echo "molecule-scenarios=${MOLECULE_SCENARIOS}" >> $GITHUB_OUTPUT
 
   tests:
