@@ -48,3 +48,7 @@
 
     - name: Stop play for all hosts because cluster is not initialized
       ansible.builtin.meta: end_play
+
+- name: Configure cluster networking
+  ansible.builtin.include_tasks: configure-networking.yml
+  when: k8s_cluster_initial_master | bool
