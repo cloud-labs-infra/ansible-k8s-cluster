@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.5.1](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.5.0...v1.5.1) (2023-06-27)
+
+
+### Bug Fixes
+
+* check for master node to be ready ([#51](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/51)) ([82cf2f8](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/82cf2f812d14378bff38e35b679bd5bc5ab081b0))
+
 ## [1.5.0](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.6...v1.5.0) (2023-06-22)
 
 
