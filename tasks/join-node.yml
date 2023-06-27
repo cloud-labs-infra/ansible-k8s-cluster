@@ -19,7 +19,7 @@
 
 - name: Check nodes until ready
   ansible.builtin.shell: |
-    kubectl get node {{ ansible_hostname }} \
+    kubectl get node {{ k8s_cluster_node_name }} \
       --kubeconfig=/etc/kubernetes/admin.conf -o json | jq -Mr '.status.conditions[4].status'
   register: kubectl_response
   changed_when: false

@@ -12,6 +12,7 @@ k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 
 k8s_cluster_node_type: worker
 k8s_cluster_initial_master: false
+k8s_cluster_node_name: "{{ inventory_hostname }}"
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-InitConfiguration
 k8s_cluster_init_configuration:
@@ -19,6 +20,7 @@ k8s_cluster_init_configuration:
   # the node name, the CRI socket to use or any other settings that should apply to this
   # node only (e.g. the node ip)
   nodeRegistration:
+    name: "{{ k8s_cluster_node_name }}"
     ignorePreflightErrors:
       - SystemVerification
   # localAPIEndpoint represents the endpoint of the API server instance that's deployed on this
@@ -60,6 +62,7 @@ k8s_cluster_join_configuration:
   # the node name, the CRI socket to use or any other settings that should apply to this
   # node only (e.g. the node ip)
   nodeRegistration:
+    name: "{{ k8s_cluster_node_name }}"
     ignorePreflightErrors:
       - SystemVerification
   # options for the kubelet to use during the TLS bootstrap process

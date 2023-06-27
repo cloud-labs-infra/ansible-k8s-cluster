@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.6...v1.5.0) (2023-06-22)
+
+
+### Features
+
+* new variable for node names ([#53](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/53)) ([d89177a](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/d89177a481d3d99fcdfb8a6d6f96393d8b219979))
+
+
+### Bug Fixes
+
+* remove cri binding ([#45](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/45)) ([6612ac5](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/6612ac5e52fa2543c236bc33e611d2c695f5835b))
+
+### [1.4.6](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.5...v1.4.6) (2023-06-20)
+
+
+### Bug Fixes
+
+* install jq ([#52](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/52)) ([5c885f3](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/5c885f3682771c8f291afa765d2ff457f72d9550))
+
 ### [1.4.5](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.4.4...v1.4.5) (2023-05-29)
 
 
