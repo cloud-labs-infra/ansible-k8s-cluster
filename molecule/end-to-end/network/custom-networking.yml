@@ -1,9 +1,9 @@
 ---
 
-- name: Configure default (Flannel) networking
+- name: Configure Calico networking
   ansible.builtin.shell: |
     kubectl apply \
-      -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml \
+      -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml \
       --kubeconfig=/etc/kubernetes/admin.conf \
-        > /tmp/flannel.log 2>&1
+        > /tmp/calico.log 2>&1
   changed_when: False
