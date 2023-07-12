@@ -14,9 +14,7 @@
 
 - name: Configure custom networking
   ansible.builtin.include_tasks: "{{ k8s_cluster_custom_networking_tasks_path }}"
-  when:
-    - k8s_cluster_custom_networking_tasks_path != ""
-    - k8s_cluster_flannel_apply == ""
+  when: k8s_cluster_custom_networking_tasks_path != ""
 
 - name: Check master node until ready
   ansible.builtin.shell: |
