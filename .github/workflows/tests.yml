@@ -21,8 +21,7 @@ jobs:
           make init
       - name: Run linters
         run: |
-          yamllint .
-          ansible-lint 
+          make lint
 
   prepare-matrix:
     needs: run-linters
