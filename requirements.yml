@@ -22,3 +22,6 @@ roles:
 collections:
   - name: community.general
     version: 7.0.1
+
+  - name: community.docker
+    version: 3.4.8
