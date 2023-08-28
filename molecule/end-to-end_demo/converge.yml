@@ -1,7 +1,7 @@
 ---
 
-#- name: Converge using end-to-end
-#  ansible.builtin.import_playbook: ../end-to-end/converge.yml
+- name: Converge using end-to-end
+  ansible.builtin.import_playbook: ../end-to-end/converge.yml
 
 - name: Install Helm
   hosts:
@@ -12,7 +12,7 @@
   roles:
     - { role: geerlingguy.helm }
 
-- name: Copy manifests and helm files
+- name: Prepare control-plane
   hosts:
     - k8s-control-plane-01
   gather_facts: false
@@ -23,3 +23,34 @@
       ansible.builtin.copy:
         src: deploy_files/
         dest: ~/demo
+
+    - name: Install pip library
+      ansible.builtin.pip:
+        name: kubernetes
+
+- name: Nginx, Loki and Grafana deployment
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Nginx installation
+      block:
+        - name: Create nginx namespace
+          kubernetes.core.k8s:
+            name: nginx-ns
+            api_version: v1
+            kind: Namespace
+            state: present
+
+        - name: Create nginx deploy
+          kubernetes.core.k8s:
+            state: present
+            src: ~/demo/nginx/deploy.yml
+
+        - name: Create nginx service
+          kubernetes.core.k8s:
+            state: present
+            src: ~/demo/nginx/service.yml
+
