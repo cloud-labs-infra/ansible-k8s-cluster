@@ -88,6 +88,10 @@ platforms:
       - workers
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      stdout_callback: yaml
+      stderr_callback: yaml
   inventory:
     host_vars:
       k8s-control-plane-01:

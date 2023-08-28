@@ -71,6 +71,7 @@
     - name: Grafana installation
       block:
         - name: Install grafana helm release
+          #
           kubernetes.core.helm:
             name: grafana
             chart_ref: grafana/grafana
@@ -157,3 +158,38 @@
       kubernetes.core.k8s:
         state: present
         src: ~/demo/grafana/ingress-to-grafana.yml
+
+- name: Useful output
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: CA cert
+      block:
+        - name: Collect CA cert
+          ansible.builtin.shell: |
+            set -o pipefail && \
+            kubectl get secret -n default root-ca -o jsonpath="{.data.ca\.crt}" | base64 -d
+          args:
+            executable: /bin/bash
+          register: root_ca_secret
+
+        - name: Print CA cert
+          ansible.builtin.debug:
+            msg: "{{ root_ca_secret.stdout  }}"
+
+    - name: Grafana admin password
+      block:
+        - name: Collect password
+          ansible.builtin.shell: |
+            set -o pipefail && \
+            kubectl get secret --namespace grafana-ns grafana -o jsonpath="{.data.admin-password}" | base64 -d
+          args:
+            executable: /bin/bash
+          register: grafana_password
+
+        - name: Print Grafana password
+          ansible.builtin.debug:
+            msg: "{{ grafana_password.stdout }}"
