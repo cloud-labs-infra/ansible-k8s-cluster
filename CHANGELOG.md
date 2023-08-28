@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.5.1...v1.6.0) (2023-08-28)
+
+
+### Features
+
+* configure networking customization ([#55](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/55)) ([97a725c](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/97a725ca7b0e2b6e45886585504ecdc49dbdd517))
+
 ### [1.5.1](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.5.0...v1.5.1) (2023-06-27)
 
 
