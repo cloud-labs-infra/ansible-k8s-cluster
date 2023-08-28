@@ -61,7 +61,7 @@
             name: grafana
             repo_url: "https://grafana.github.io/helm-charts"
 
-        - name: Install loki release
+        - name: Install loki helm release
           kubernetes.core.helm:
             name: loki
             chart_ref: grafana/loki-stack
@@ -70,7 +70,7 @@
 
     - name: Grafana installation
       block:
-        - name: Install grafana release
+        - name: Install grafana helm release
           kubernetes.core.helm:
             name: grafana
             chart_ref: grafana/grafana
@@ -78,3 +78,24 @@
             create_namespace: true
             values_files:
               - root/demo/grafana/helm-values.yml
+
+- name: Ingress Controller
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Add ingress controller helm repo
+      kubernetes.core.helm_repository:
+        name: ingress-nginx
+        repo_url: "https://kubernetes.github.io/ingress-nginx"
+
+    - name: Install ingress controller helm release
+      kubernetes.core.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx-ns
+        create_namespace: true
+        values_files:
+          - root/demo/ingress-controller/helm-values.yml
