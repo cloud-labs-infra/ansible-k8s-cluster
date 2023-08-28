@@ -28,32 +28,24 @@
       ansible.builtin.pip:
         name: kubernetes
 
-- name: Nginx, Loki and Grafana deployment
+- name: Create namespace using self written chart
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  tasks:
+    - name: Create namespaces
+      kubernetes.core.helm:
+        name: namespaces
+        release_namespace: default
+        chart_ref: root/demo/namespace-helm-chart
+
+- name: Loki and Grafana deployment
   hosts:
     - k8s-control-plane-01
   gather_facts: false
   become: true
   become_method: su
   tasks:
-    - name: Nginx installation
-      block:
-        - name: Create nginx namespace
-          kubernetes.core.k8s:
-            name: nginx-ns
-            api_version: v1
-            kind: Namespace
-            state: present
-
-        - name: Create nginx deploy
-          kubernetes.core.k8s:
-            state: present
-            src: ~/demo/nginx/deploy.yml
-
-        - name: Create nginx service
-          kubernetes.core.k8s:
-            state: present
-            src: ~/demo/nginx/service.yml
-
     - name: Loki installation
       block:
         - name: Add grafana/loki helm repo
@@ -66,7 +58,6 @@
             name: loki
             chart_ref: grafana/loki-stack
             release_namespace: loki-ns
-            create_namespace: true
 
     - name: Grafana installation
       block:
@@ -76,7 +67,6 @@
             name: grafana
             chart_ref: grafana/grafana
             release_namespace: grafana-ns
-            create_namespace: true
             values_files:
               - root/demo/grafana/helm-values.yml
 
@@ -97,7 +87,6 @@
         name: ingress-nginx
         chart_ref: ingress-nginx/ingress-nginx
         release_namespace: ingress-nginx-ns
-        create_namespace: true
         values_files:
           - root/demo/ingress-controller/helm-values.yml
 
@@ -120,7 +109,6 @@
             name: cert-manager
             chart_ref: jetstack/cert-manager
             release_namespace: cert-manager-ns
-            create_namespace: true
             values_files:
               - root/demo/cert-manager/helm-values.yml
 
@@ -149,11 +137,6 @@
   become: true
   become_method: su
   tasks:
-    - name: Ingress to nginx
-      kubernetes.core.k8s:
-        state: present
-        src: ~/demo/nginx/ingress-to-nginx.yml
-
     - name: Ingress to grafana
       kubernetes.core.k8s:
         state: present
