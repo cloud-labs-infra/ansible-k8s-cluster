@@ -126,9 +126,6 @@ provisioner:
           - "{{ etcd_cert_dir }}/peer.pem"
 verifier:
   name: ansible
-lint: |
-  yamllint .
-  ansible-lint
 scenario:
   test_sequence:
     - dependency

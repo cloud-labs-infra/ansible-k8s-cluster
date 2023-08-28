@@ -18,4 +18,5 @@ test:
 	molecule test --all
 
 lint:
-	molecule lint
+	yamllint .
+	ansible-lint

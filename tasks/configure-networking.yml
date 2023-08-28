@@ -1,0 +1,27 @@
+---
+
+# https://github.com/flannel-io/flannel
+- name: Configure default (Flannel) networking
+  ansible.builtin.shell: |
+    kubectl apply \
+      -f {{ k8s_cluster_flannel_apply }} \
+      --kubeconfig=/etc/kubernetes/admin.conf \
+        > /tmp/flannel.log 2>&1
+  changed_when: False
+  when:
+    - k8s_cluster_custom_networking_tasks_path == ""
+    - k8s_cluster_flannel_apply != ""
+
+- name: Configure custom networking
+  ansible.builtin.include_tasks: "{{ k8s_cluster_custom_networking_tasks_path }}"
+  when: k8s_cluster_custom_networking_tasks_path != ""
+
+- name: Check master node until ready
+  ansible.builtin.shell: |
+    kubectl get node {{ k8s_cluster_node_name }} \
+      --kubeconfig=/etc/kubernetes/admin.conf -o json | jq -Mr '.status.conditions[4].status'
+  register: kubectl_response
+  changed_when: false
+  until: kubectl_response.stdout == "True"
+  retries: 48
+  delay: 5

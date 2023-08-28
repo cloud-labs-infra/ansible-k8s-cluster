@@ -11,8 +11,8 @@ k8s_cluster_kubernetes_version: 1.26.0
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 
 k8s_cluster_node_type: worker
-k8s_cluster_initial_master: false
 k8s_cluster_node_name: "{{ inventory_hostname }}"
+k8s_cluster_initial_master: false
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-InitConfiguration
 k8s_cluster_init_configuration:
@@ -88,3 +88,4 @@ k8s_cluster_join_configuration:
 
 # https://github.com/flannel-io/flannel
 k8s_cluster_flannel_apply: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+k8s_cluster_custom_networking_tasks_path: ""
