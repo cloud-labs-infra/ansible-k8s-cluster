@@ -23,6 +23,7 @@
       ansible.builtin.copy:
         src: deploy_files/
         dest: ~/demo
+        mode: 0644
 
     - name: Install pip library
       ansible.builtin.pip:
@@ -158,10 +159,11 @@
           args:
             executable: /bin/bash
           register: root_ca_secret
+          changed_when: False
 
         - name: Print CA cert
           ansible.builtin.debug:
-            msg: "{{ root_ca_secret.stdout  }}"
+            msg: "{{ root_ca_secret.stdout }}"
 
     - name: Grafana admin password
       block:
@@ -172,6 +174,7 @@
           args:
             executable: /bin/bash
           register: grafana_password
+          changed_when: False
 
         - name: Print Grafana password
           ansible.builtin.debug:
