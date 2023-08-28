@@ -1,7 +1,7 @@
 ---
 
-- name: Converge using end-to-end
-  ansible.builtin.import_playbook: ../end-to-end/converge.yml
+#- name: Converge using end-to-end
+#  ansible.builtin.import_playbook: ../end-to-end/converge.yml
 
 - name: Install Helm
   hosts:
@@ -11,3 +11,15 @@
   become_method: su
   roles:
     - { role: geerlingguy.helm }
+
+- name: Copy manifests and helm files
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Copy manifests and helm files
+      ansible.builtin.copy:
+        src: deploy_files/
+        dest: ~/demo
