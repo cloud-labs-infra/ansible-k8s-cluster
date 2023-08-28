@@ -1,8 +1,7 @@
 ansible==5.10.0
-ansible-compat==4.0.5
 ansible-core==2.12.10
+ansible-compat==3.0.2
 molecule==4.0.4
-molecule[docker]
-molecule[lint]
-ansible-lint==6.18.0
+molecule[docker]==2.1.0
+ansible-lint==6.16.2
 yamllint
