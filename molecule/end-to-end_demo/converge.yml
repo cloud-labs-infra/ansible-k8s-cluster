@@ -140,3 +140,20 @@
           kubernetes.core.k8s:
             state: present
             src: ~/demo/cert-manager/root-ca-issuer.yml
+
+- name: Ingress
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Ingress to nginx
+      kubernetes.core.k8s:
+        state: present
+        src: ~/demo/nginx/ingress-to-nginx.yml
+
+    - name: Ingress to grafana
+      kubernetes.core.k8s:
+        state: present
+        src: ~/demo/grafana/ingress-to-grafana.yml
