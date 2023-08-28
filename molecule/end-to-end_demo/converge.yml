@@ -1,0 +1,4 @@
+---
+
+- name: Converge using end-to-end
+  ansible.builtin.import_playbook: ../end-to-end/converge.yml
