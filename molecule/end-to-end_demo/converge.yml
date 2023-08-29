@@ -22,7 +22,7 @@
     - name: Copy manifests and helm files
       ansible.builtin.copy:
         src: deploy_files/
-        dest: ~/demo
+        dest: /root/demo
         mode: 0644
 
     - name: Install pip library
@@ -38,7 +38,7 @@
       kubernetes.core.helm:
         name: namespaces
         release_namespace: default
-        chart_ref: root/demo/namespace-helm-chart
+        chart_ref: /root/demo/namespace-helm-chart
 
 - name: Loki and Grafana deployment
   hosts:
@@ -68,7 +68,7 @@
             chart_ref: grafana/grafana
             release_namespace: grafana-ns
             values_files:
-              - root/demo/grafana/helm-values.yml
+              - /root/demo/grafana/helm-values.yml
 
 - name: Ingress Controller
   hosts:
@@ -88,7 +88,7 @@
         chart_ref: ingress-nginx/ingress-nginx
         release_namespace: ingress-nginx-ns
         values_files:
-          - root/demo/ingress-controller/helm-values.yml
+          - /root/demo/ingress-controller/helm-values.yml
 
 - name: Cert Manager
   hosts:
@@ -110,25 +110,25 @@
             chart_ref: jetstack/cert-manager
             release_namespace: cert-manager-ns
             values_files:
-              - root/demo/cert-manager/helm-values.yml
+              - /root/demo/cert-manager/helm-values.yml
 
     - name: Prepare CA certificate
       block:
         - name: Create selfsigned issuer
           kubernetes.core.k8s:
             state: present
-            src: ~/demo/cert-manager/selfsigned-issuer.yml
+            src: /root/demo/cert-manager/selfsigned-issuer.yml
 
         - name: Create CA certificate
           kubernetes.core.k8s:
             state: present
             namespace: default
-            src: ~/demo/cert-manager/selfsigned-cert.yml
+            src: /root/demo/cert-manager/selfsigned-cert.yml
 
         - name: Create CA issuer
           kubernetes.core.k8s:
             state: present
-            src: ~/demo/cert-manager/root-ca-issuer.yml
+            src: /root/demo/cert-manager/root-ca-issuer.yml
 
 - name: Ingress
   hosts:
@@ -140,7 +140,7 @@
     - name: Ingress to grafana
       kubernetes.core.k8s:
         state: present
-        src: ~/demo/grafana/ingress-to-grafana.yml
+        src: /root/demo/grafana/ingress-to-grafana.yml
 
 - name: Useful output
   hosts:
