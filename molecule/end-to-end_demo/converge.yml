@@ -63,7 +63,6 @@
     - name: Grafana installation
       block:
         - name: Install grafana helm release
-          #
           kubernetes.core.helm:
             name: grafana
             chart_ref: grafana/grafana
