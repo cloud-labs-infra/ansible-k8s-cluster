@@ -89,6 +89,11 @@
         release_namespace: ingress-nginx-ns
         values_files:
           - /root/demo/ingress-controller/helm-values.yml
+      register: helm_result
+      changed_when: false
+      until: helm_result.rc != 0
+      retries: 2
+      delay: 5
 
 - name: Cert Manager
   hosts:
@@ -111,6 +116,11 @@
             release_namespace: cert-manager-ns
             values_files:
               - /root/demo/cert-manager/helm-values.yml
+          register: helm_result
+          changed_when: false
+          until: helm_result.rc != 0
+          retries: 2
+          delay: 5
 
     - name: Prepare CA certificate
       block:
