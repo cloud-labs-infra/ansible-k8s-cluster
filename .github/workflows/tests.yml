@@ -56,7 +56,7 @@ jobs:
       - name: Install requirements
         run: |
           make init
-          swapoff -a
+          sudo swapoff -a
       - name: Run tests
         run: |
           molecule test --scenario-name "${{ matrix.scenario }}" --destroy=never
