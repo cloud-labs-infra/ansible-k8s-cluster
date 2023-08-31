@@ -87,13 +87,16 @@
         name: ingress-nginx
         chart_ref: ingress-nginx/ingress-nginx
         release_namespace: ingress-nginx-ns
+        timeout: 2m
         values_files:
           - /root/demo/ingress-controller/helm-values.yml
       register: helm_result
       changed_when: false
-      until: helm_result.rc != 0
-      retries: 2
-      delay: 5
+      failed_when: false
+
+    - name: Debug
+      debug:
+        msg: "{{ helm_result }}"
 
 - name: Cert Manager
   hosts:
@@ -114,13 +117,18 @@
             name: cert-manager
             chart_ref: jetstack/cert-manager
             release_namespace: cert-manager-ns
+            timeout: 2m
             values_files:
               - /root/demo/cert-manager/helm-values.yml
           register: helm_result
           changed_when: false
-          until: helm_result.rc != 0
-          retries: 2
-          delay: 5
+          failed_when: false
+
+        - name: Debug
+          debug:
+            msg: "{{ helm_result }}"
+        - name: Pause
+          pause:
 
     - name: Prepare CA certificate
       block:

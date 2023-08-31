@@ -58,7 +58,7 @@ jobs:
           make init
       - name: Run tests
         run: |
-          molecule test --scenario-name "${{ matrix.scenario }}"
+          molecule test --scenario-name "${{ matrix.scenario }}" --destroy=never
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
