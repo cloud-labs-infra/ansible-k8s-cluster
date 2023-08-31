@@ -1,7 +1,7 @@
 ---
 
 - name: Converge using end-to-end
-  ansible.builtin.import_playbook: ../end-to-end/converge.yml
+  ansible.builtin.import_playbook: ../default_join-workers/converge.yml
 
 - name: Install Helm
   hosts:
