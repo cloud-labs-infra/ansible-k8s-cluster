@@ -92,11 +92,6 @@
           - /root/demo/ingress-controller/helm-values.yml
       register: helm_result
       changed_when: false
-      failed_when: false
-
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ helm_result }}"
 
 - name: Cert Manager
   hosts:
@@ -122,13 +117,6 @@
               - /root/demo/cert-manager/helm-values.yml
           register: helm_result
           changed_when: false
-          failed_when: false
-
-        - name: Debug
-          ansible.builtin.debug:
-            msg: "{{ helm_result }}"
-        - name: Pause
-          ansible.builtin.pause:
 
     - name: Prepare CA certificate
       block:
