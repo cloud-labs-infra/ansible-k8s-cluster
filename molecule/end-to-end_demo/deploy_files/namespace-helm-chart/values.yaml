@@ -1,0 +1,9 @@
+# Default values for sa-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespaces:
+- name: loki-ns
+- name: grafana-ns
+- name: ingress-nginx-ns
+- name: cert-manager-ns

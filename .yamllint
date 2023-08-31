@@ -4,6 +4,7 @@ extends: default
 
 ignore: |
   .github/*
+  molecule/end-to-end_demo/deploy_files/namespace-helm-chart/*
 
 # https://yamllint.readthedocs.io/en/stable/rules.html
 rules:

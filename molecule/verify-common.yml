@@ -5,7 +5,7 @@
     - name: Query health endpoint to show output  # noqa: command-instead-of-module
       ansible.builtin.shell: |
         set -o pipefail && \
-        curl -k https://localhost:6443/livez?verbose 2>/dev/null
+        curl -k --retry 5 https://localhost:6443/livez?verbose 2>/dev/null
       args:
         executable: /bin/bash
       register: curl_show
