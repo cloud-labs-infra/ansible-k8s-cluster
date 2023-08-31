@@ -95,7 +95,7 @@
       failed_when: false
 
     - name: Debug
-      debug:
+      ansible.builtin.debug:
         msg: "{{ helm_result }}"
 
 - name: Cert Manager
@@ -125,10 +125,10 @@
           failed_when: false
 
         - name: Debug
-          debug:
+          ansible.builtin.debug:
             msg: "{{ helm_result }}"
         - name: Pause
-          pause:
+          ansible.builtin.pause:
 
     - name: Prepare CA certificate
       block:
