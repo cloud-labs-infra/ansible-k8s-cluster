@@ -11,4 +11,9 @@
     - name: temporary test
       ansible.builtin.shell: |
         netstat -tulpn
+      register: netstat
       changed_when: false
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: netstat
