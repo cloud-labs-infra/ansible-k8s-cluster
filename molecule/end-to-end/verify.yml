@@ -9,5 +9,6 @@
         file: ../verify-common.yml
 
     - name: temporary test
-      shell: |
+      ansible.builtin.shell: |
         netstat -tulpn
+      changed_when: false
