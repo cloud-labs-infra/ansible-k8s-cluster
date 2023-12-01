@@ -64,7 +64,11 @@ k8s_cluster_kubelet_configuration:
   failSwapOn: false
 
 # https://kubernetes.io/docs/reference/config-api/kube-proxy-config.v1alpha1/
-k8s_cluster_kubeproxy_configuration: ""
+k8s_cluster_kubeproxy_configuration:
+  # monitoring tools can't scrape default bind address (127.0.0.1:10249)
+  # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md#kubeproxy
+  # https://kubernetes.io/docs/reference/config-api/kube-proxy-config.v1alpha1/
+  metricsBindAddress: "0.0.0.0:10249"
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-JoinConfiguration
 #
