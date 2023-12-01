@@ -52,11 +52,11 @@ k8s_cluster_cluster_configuration:
   #   https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/
   controllerManager:
     extraArgs:
-      bind-address: 0.0.0.0
+      bind-address: "0.0.0.0"
   # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/
   scheduler:
     extraArgs:
-      bind-address: 0.0.0.0
+      bind-address: "0.0.0.0"
 
 # https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/
 k8s_cluster_kubelet_configuration:
