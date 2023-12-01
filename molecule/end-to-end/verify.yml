@@ -7,3 +7,7 @@
     - name: Include verify common
       ansible.builtin.include_tasks:
         file: ../verify-common.yml
+
+    - name: temporary test
+      shell: |
+        netstat -tulpn
