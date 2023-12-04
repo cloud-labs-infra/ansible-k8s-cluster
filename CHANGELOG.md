@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.6.1](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.6.0...v1.6.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* explicitly set bind-address for scheduler and controller-manager ([#63](https://github.com/cloud-labs-infra/ansible-k8s-cluster/issues/63)) ([4c40657](https://github.com/cloud-labs-infra/ansible-k8s-cluster/commit/4c40657efa0302135d45c2cc441d73bddf3410ce))
+
 ## [1.6.0](https://github.com/cloud-labs-infra/ansible-k8s-cluster/compare/v1.5.1...v1.6.0) (2023-08-28)
 
 
