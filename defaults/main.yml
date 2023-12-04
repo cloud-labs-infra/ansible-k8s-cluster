@@ -44,6 +44,19 @@ k8s_cluster_cluster_configuration:
   # In a cluster with more than one control plane instances, this field should be assigned
   # the address of the external load balancer in front of the control plane instances
   controlPlaneEndpoint: "{{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}:6443"
+  # controller-manager and scheduler listen 127.0.0.1 address and respective port by default.
+  # it could be a problem if you are going to deploy monitoring stack because it would be
+  # scrapping <node_ip>:<port> (node_ip - because those manifests have 'hostNetwork: true')
+  #
+  # read more about kube-controller-manager options:
+  #   https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/
+  controllerManager:
+    extraArgs:
+      bind-address: "0.0.0.0"
+  # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/
+  scheduler:
+    extraArgs:
+      bind-address: "0.0.0.0"
 
 # https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/
 k8s_cluster_kubelet_configuration:
@@ -51,7 +64,11 @@ k8s_cluster_kubelet_configuration:
   failSwapOn: false
 
 # https://kubernetes.io/docs/reference/config-api/kube-proxy-config.v1alpha1/
-k8s_cluster_kubeproxy_configuration: ""
+k8s_cluster_kubeproxy_configuration:
+  # monitoring tools can't scrape default bind address (127.0.0.1:10249)
+  # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md#kubeproxy
+  # https://kubernetes.io/docs/reference/config-api/kube-proxy-config.v1alpha1/
+  metricsBindAddress: "0.0.0.0:10249"
 
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-JoinConfiguration
 #

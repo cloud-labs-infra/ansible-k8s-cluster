@@ -7,3 +7,15 @@
     - name: Include verify common
       ansible.builtin.include_tasks:
         file: ../verify-common.yml
+
+    - name: Netstat output
+      block:
+        - name: Run netstat
+          ansible.builtin.shell: |
+            netstat -tulpn
+          register: netstat
+          changed_when: false
+
+        - name: Netstat debug
+          ansible.builtin.debug:
+            var: netstat

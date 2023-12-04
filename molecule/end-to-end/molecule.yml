@@ -108,6 +108,12 @@ provisioner:
             dnsDomain: cluster.local
           kubernetesVersion: "{{ k8s_cluster_kubernetes_version }}"
           controlPlaneEndpoint: "{{ k8s_cluster_control_plane_endpoint }}:6443"
+          controllerManager:
+            extraArgs:
+              bind-address: "0.0.0.0"
+          scheduler:
+            extraArgs:
+              bind-address: "0.0.0.0"
         # custom networking
         k8s_cluster_flannel_apply: ""
         k8s_cluster_custom_networking_tasks_path: "network/custom-networking.yml"
