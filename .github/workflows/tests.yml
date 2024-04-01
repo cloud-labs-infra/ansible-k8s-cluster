@@ -56,9 +56,13 @@ jobs:
       - name: Install requirements
         run: |
           make init
+          sudo swapoff -a
       - name: Run tests
         run: |
-          molecule test --scenario-name "${{ matrix.scenario }}"
+          molecule test --scenario-name "${{ matrix.scenario }}" --destroy=never
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3

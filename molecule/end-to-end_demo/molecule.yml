@@ -1,0 +1,53 @@
+---
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - &default_platform
+    name: k8s-control-plane-01
+    hostname: k8s-control-plane-01
+    image: kindest/node:v1.26.3
+    groups:
+      - control_plane
+    volumes:
+      - /lib/modules:/lib/modules:ro
+      - /var/lib/containerd
+    privileged: true
+    pre_build_image: true
+    keep_volumes: false
+    sysctls:
+      net.bridge.bridge-nf-call-iptables: 1
+      net.bridge.bridge-nf-call-ip6tables: 1
+      net.ipv4.ip_forward: 1
+  - <<: *default_platform
+    name: k8s-worker-01
+    hostname: k8s-worker-01
+    groups:
+      - workers
+  - <<: *default_platform
+    name: k8s-worker-02
+    hostname: k8s-worker-02
+    groups:
+      - workers
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      k8s-control-plane-01:
+        k8s_cluster_node_type: "master"
+        k8s_cluster_initial_master: true
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - cleanup
+    - destroy

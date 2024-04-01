@@ -19,6 +19,12 @@ roles:
   - name: cloudlabsinfra.etcd_cluster_certificates
     version: v1.0.0
 
+  - name: geerlingguy.helm
+    version: 1.0.1
+
 collections:
   - name: community.general
     version: 7.0.1
+
+  - name: kubernetes.core
+    version: 2.4.0
