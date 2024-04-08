@@ -18,8 +18,10 @@
       ansible.builtin.set_fact:
         k8s_cluster_apt_kubernetes_version: "{{ k8s_cluster_kubernetes_version | regex_replace('^(v\\d\\.\\d\\d)\\.\\d$', 'v\\1') }}"
 
-    - debug:
+    - name: Debug
+      ansible.builtindebug:
         var: k8s_cluster_apt_kubernetes_version
+
     - name: Add Kubernetes apt key
       ansible.builtin.apt_key:
         url: "{{ k8s_cluster_apt_key_url }}"
