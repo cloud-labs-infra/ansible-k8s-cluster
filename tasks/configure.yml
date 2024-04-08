@@ -14,24 +14,28 @@
         state: present
         update_cache: yes
 
+    - name: Set proper version for apt repo
+      ansible.builtin.set_fact:
+        k8s_cluster_apt_kubernetes_version: "{{ k8s_cluster_kubernetes_version | regex_replace('^(v\\d\\.\\d\\d)\\.\\d$', 'v\\1') }}"
+
     - name: Add Kubernetes apt key
       ansible.builtin.apt_key:
         url: "{{ k8s_cluster_apt_key_url }}"
-        keyring: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+        keyring: "{{ k8s_cluster_apt_key_file }}"
 
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
         repo: "{{ k8s_cluster_apt_repository }}"
         state: present
-        #    filename: kubernetes
+        #filename: kubernetes
         update_cache: true
 
     - name: Install Kubernetes components
       ansible.builtin.apt:
         name:
-          - kubelet={{ k8s_cluster_kubelet_version }}
-          - kubeadm={{ k8s_cluster_kubeadm_version }}
-          - kubectl={{ k8s_cluster_kubectl_version }}
+          - kubelet={{ k8s_cluster_kube_version }}
+          - kubeadm={{ k8s_cluster_kube_version }}
+          - kubectl={{ k8s_cluster_kube_version }}
         allow_unauthenticated: yes
         update_cache: yes
 

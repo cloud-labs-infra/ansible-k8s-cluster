@@ -1,12 +1,17 @@
 ---
 
-k8s_cluster_kubelet_version: '1.26.0-00'
-k8s_cluster_kubeadm_version: '1.26.0-00'
-k8s_cluster_kubectl_version: '1.26.0-00'
+k8s_cluster_kube_version: '1.26.0-00'
 
-k8s_cluster_apt_key_url: 'https://packages.cloud.google.com/apt/doc/apt-key.gpg'
-k8s_cluster_apt_repository: 'deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main'
+# read more at the following sources:
+# https://kubernetes.io/blog/2023/08/31/legacy-package-repository-deprecation/
+# https://kubernetes.io/blog/2023/08/15/pkgs-k8s-io-introduction/
+#
+# 'k8s_cluster_apt_kubernetes_version' will be calculated during role execution using set_fact
+k8s_cluster_apt_key_url: "https://pkgs.k8s.io/core:/stable:/{{ k8s_cluster_apt_kubernetes_version }}/deb/Release.key"
+k8s_cluster_apt_key_file: "/usr/share/keyrings/kubernetes-archive-keyring.gpg"
+k8s_cluster_apt_repository: 'deb [signed-by={{ k8s_cluster_apt_key_file }}] https://pkgs.k8s.io/core:/stable:/{{ k8s_cluster_apt_kubernetes_version }}/deb/ /'
 
+# without leading 'v', numbers and dots only
 k8s_cluster_kubernetes_version: 1.26.0
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 
