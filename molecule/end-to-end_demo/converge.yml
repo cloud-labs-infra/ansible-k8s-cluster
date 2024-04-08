@@ -1,0 +1,198 @@
+---
+
+- name: Converge using end-to-end
+  ansible.builtin.import_playbook: ../end-to-end/converge.yml
+
+- name: Install Helm
+  hosts:
+    - control_plane
+  gather_facts: false
+  become: true
+  become_method: su
+  roles:
+    - { role: geerlingguy.helm }
+
+- name: Prepare control-plane
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Copy manifests and helm files
+      ansible.builtin.copy:
+        src: deploy_files/
+        dest: /root/demo
+        mode: 0644
+
+    - name: Install pip library
+      ansible.builtin.pip:
+        name: kubernetes
+
+- name: Create namespace using self written chart
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  tasks:
+    - name: Create namespaces
+      kubernetes.core.helm:
+        name: namespaces
+        release_namespace: default
+        chart_ref: /root/demo/namespace-helm-chart
+
+- name: Loki and Grafana deployment
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Loki installation
+      block:
+        - name: Add grafana/loki helm repo
+          kubernetes.core.helm_repository:
+            name: grafana
+            repo_url: "https://grafana.github.io/helm-charts"
+
+        - name: Install loki helm release
+          kubernetes.core.helm:
+            name: loki
+            chart_ref: grafana/loki-stack
+            release_namespace: loki-ns
+
+    - name: Grafana installation
+      block:
+        - name: Install grafana helm release
+          kubernetes.core.helm:
+            name: grafana
+            chart_ref: grafana/grafana
+            release_namespace: grafana-ns
+            values_files:
+              - /root/demo/grafana/helm-values.yml
+
+- name: Ingress Controller
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Add ingress controller helm repo
+      kubernetes.core.helm_repository:
+        name: ingress-nginx
+        repo_url: "https://kubernetes.github.io/ingress-nginx"
+
+    - name: Install ingress controller helm release
+      kubernetes.core.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx-ns
+        timeout: 2m
+        values_files:
+          - /root/demo/ingress-controller/helm-values.yml
+      register: helm_result
+      changed_when: false
+      failed_when: false
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ helm_result }}"
+
+- name: Cert Manager
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Install Cert Manager
+      block:
+        - name: Add cert-manager helm repo
+          kubernetes.core.helm_repository:
+            name: jetstack
+            repo_url: "https://charts.jetstack.io"
+
+        - name: Install cert-manager helm release
+          kubernetes.core.helm:
+            name: cert-manager
+            chart_ref: jetstack/cert-manager
+            release_namespace: cert-manager-ns
+            timeout: 2m
+            values_files:
+              - /root/demo/cert-manager/helm-values.yml
+          register: helm_result
+          changed_when: false
+          failed_when: false
+
+        - name: Debug
+          ansible.builtin.debug:
+            msg: "{{ helm_result }}"
+        - name: Pause
+          ansible.builtin.pause:
+
+    - name: Prepare CA certificate
+      block:
+        - name: Create selfsigned issuer
+          kubernetes.core.k8s:
+            state: present
+            src: /root/demo/cert-manager/selfsigned-issuer.yml
+
+        - name: Create CA certificate
+          kubernetes.core.k8s:
+            state: present
+            namespace: default
+            src: /root/demo/cert-manager/selfsigned-cert.yml
+
+        - name: Create CA issuer
+          kubernetes.core.k8s:
+            state: present
+            src: /root/demo/cert-manager/root-ca-issuer.yml
+
+- name: Ingress
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: Ingress to grafana
+      kubernetes.core.k8s:
+        state: present
+        src: /root/demo/grafana/ingress-to-grafana.yml
+
+- name: Useful output
+  hosts:
+    - k8s-control-plane-01
+  gather_facts: false
+  become: true
+  become_method: su
+  tasks:
+    - name: CA cert
+      block:
+        - name: Collect CA cert
+          ansible.builtin.shell: |
+            set -o pipefail && \
+            kubectl get secret -n default root-ca -o jsonpath="{.data.ca\.crt}" | base64 -d
+          args:
+            executable: /bin/bash
+          register: root_ca_secret
+          changed_when: False
+
+        - name: Print CA cert
+          ansible.builtin.debug:
+            msg: "{{ root_ca_secret.stdout }}"
+
+    - name: Grafana admin password
+      block:
+        - name: Collect password
+          ansible.builtin.shell: |
+            set -o pipefail && \
+            kubectl get secret --namespace grafana-ns grafana -o jsonpath="{.data.admin-password}" | base64 -d
+          args:
+            executable: /bin/bash
+          register: grafana_password
+          changed_when: False
+
+        - name: Print Grafana password
+          ansible.builtin.debug:
+            msg: "{{ grafana_password.stdout }}"
