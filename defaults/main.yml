@@ -1,6 +1,7 @@
 ---
 
-k8s_cluster_kube_version: 1.26.0-2.1
+# common version for kubernetes related applications - kubelet, kubeadm, kubectl
+k8s_cluster_kube_version: 1.28.8-1.1
 
 # read more at the following sources:
 # https://kubernetes.io/blog/2023/08/31/legacy-package-repository-deprecation/
@@ -12,7 +13,7 @@ k8s_cluster_apt_key_file: "/usr/share/keyrings/kubernetes-archive-keyring.gpg"
 k8s_cluster_apt_repository: 'deb [signed-by={{ k8s_cluster_apt_key_file }}] https://pkgs.k8s.io/core:/stable:/{{ k8s_cluster_apt_kubernetes_version }}/deb/ /'
 
 # without leading 'v', numbers and dots only
-k8s_cluster_kubernetes_version: 1.26.0
+k8s_cluster_kubernetes_version: 1.28.8
 k8s_cluster_kubelet_config_root_dir: '/etc/kubernetes'
 
 k8s_cluster_node_type: worker
