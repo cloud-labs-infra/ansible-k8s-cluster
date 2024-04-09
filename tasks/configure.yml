@@ -16,11 +16,7 @@
 
     - name: Set proper version for apt repo
       ansible.builtin.set_fact:
-        k8s_cluster_apt_kubernetes_version: "{{ k8s_cluster_kubernetes_version | regex_replace('^(v\\d\\.\\d\\d)\\.\\d$', 'v\\1') }}"
-
-    - name: Debug
-      ansible.builtin.debug:
-        var: k8s_cluster_apt_kubernetes_version
+        k8s_cluster_apt_kubernetes_version: "{{ k8s_cluster_kubernetes_version | regex_replace('^v?(\\d\\.\\d\\d)\\.\\d*$', 'v\\1') }}"
 
     - name: Add Kubernetes apt key
       ansible.builtin.apt_key:
