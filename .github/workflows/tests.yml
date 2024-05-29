@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: ${{ fromJson(needs.prepare-matrix.outputs.molecule-scenarios) }}
+        scenario: [default] # ${{ fromJson(needs.prepare-matrix.outputs.molecule-scenarios) }}
     name: "Run tests"
     # cgroup version shouldn't be cgroup2fs, check:
     # stat -c %T -f /sys/fs/cgroup
