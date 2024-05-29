@@ -46,7 +46,8 @@ jobs:
     name: "Run tests"
     # cgroup version shouldn't be cgroup2fs, check:
     # stat -c %T -f /sys/fs/cgroup
-    runs-on: ubuntu-20.04
+    #runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -58,7 +59,7 @@ jobs:
           make init
       - name: Run tests
         run: |
-          molecule test --scenario-name "${{ matrix.scenario }}"
+          molecule converge --scenario-name "${{ matrix.scenario }}"
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
