@@ -54,7 +54,7 @@ platforms:
   - &default_platform
     name: k8s-control-plane-01
     hostname: k8s-control-plane-01
-    image: kindest/node:v1.26.3
+    image: bissquit/my-kind:v0.1.1 # kindest/node:v1.26.3
     groups:
       - control_plane
       - etcd_clients
