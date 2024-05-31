@@ -1,7 +1,8 @@
 ---
 
 - name: Install Python
-  ansible.builtin.raw: apt update && apt install -y python3-pip python3 python3-apt
+  ansible.builtin.raw: |
+    apt update && apt install -yq --no-install-recommends python3 python3-pip python3-apt
   changed_when: false
 
 - name: Install prerequisites
